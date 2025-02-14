@@ -4,10 +4,8 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class SpringInitializrBookstoreApplication {
-
-	public static void main(String[] args) {
-		SpringApplication.run(SpringInitializrBookstoreApplication.class, args);
-	}
-
+public class Bookstore {
+    public static void main(String[] args) {
+        SpringApplication.run(Bookstore.class, args);
+    }
 }

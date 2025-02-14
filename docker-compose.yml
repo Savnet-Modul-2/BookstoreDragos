@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:latest
+    container_name: postgres_container
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: bookstore
+      POSTGRES_DB: bookstoreDatabase
+    ports:
+      - "5432:5432"
+    volumes:
+      - D:/2_Work/Companies/3Pillar/Java_Academy/Module_2/Bookstore/BookstoreData:/var/lib/postgresql/data
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: pgadmin4_container
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@bookstore.com
+      PGADMIN_DEFAULT_PASSWORD: bookstore
+    ports:
+      - "5050:80"
+    depends_on:
+      - postgres
