@@ -3,6 +3,8 @@ package com.example.Spring_Initializr_Bookstore.entities;
 import com.example.Spring_Initializr_Bookstore.Gender;
 import jakarta.persistence.*;
 
+import java.time.LocalDateTime;
+
 @Entity(name = "users")
 @Table(name = "users", schema = "public")
 public class User {
@@ -32,8 +34,17 @@ public class User {
     @Column(name = "PHONENUMBER")
     private String phoneNumber;
 
+    @Column(name = "PASSWORD")
+    private String password;
+
     @Column(name = "VERIFIED ACCOUNT")
     private Boolean verifiedAccount = false;
+
+    @Column(name = "VERIFICATION CODE")
+    private String verificationCode;
+
+    @Column(name = "VERIFICATION CODE GENERATION TIME")
+    private LocalDateTime verificationCodeGenerationTime;
 
     public Long getId() {
         return id;
@@ -79,7 +90,7 @@ public class User {
         return yearOfBirth;
     }
 
-    public void setYearOfBirth(int yearOfBirth) {
+    public void setYearOfBirth(Integer yearOfBirth) {
         this.yearOfBirth = yearOfBirth;
     }
 
@@ -99,11 +110,35 @@ public class User {
         this.phoneNumber = phoneNumber;
     }
 
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
     public Boolean getVerifiedAccount() {
         return verifiedAccount;
     }
 
     public void setVerifiedAccount(Boolean verifiedAccount) {
         this.verifiedAccount = verifiedAccount;
+    }
+
+    public String getVerificationCode() {
+        return verificationCode;
+    }
+
+    public void setVerificationCode(String verificationCode) {
+        this.verificationCode = verificationCode;
+    }
+
+    public LocalDateTime getVerificationCodeGenerationTime() {
+        return verificationCodeGenerationTime;
+    }
+
+    public void setVerificationCodeGenerationTime(LocalDateTime verificationCodeGenerationTime) {
+        this.verificationCodeGenerationTime = verificationCodeGenerationTime;
     }
 }

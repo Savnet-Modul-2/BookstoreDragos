@@ -14,6 +14,7 @@ public class UserMapper {
         user.setYearOfBirth(userDTO.getYearOfBirth());
         user.setEmail(userDTO.getEmail());
         user.setPhoneNumber(userDTO.getPhoneNumber());
+        user.setPassword(userDTO.getPassword());
         user.setVerifiedAccount(userDTO.getVerifiedAccount());
 
         return user;
@@ -30,6 +31,7 @@ public class UserMapper {
         userDTO.setYearOfBirth(user.getYearOfBirth());
         userDTO.setEmail(user.getEmail());
         userDTO.setPhoneNumber(user.getPhoneNumber());
+        userDTO.setPassword(user.getPassword());
         userDTO.setVerifiedAccount(user.getVerifiedAccount());
 
         return userDTO;

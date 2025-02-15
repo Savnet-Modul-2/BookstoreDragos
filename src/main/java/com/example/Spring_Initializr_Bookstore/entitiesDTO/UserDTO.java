@@ -11,6 +11,7 @@ public class UserDTO {
     private Integer yearOfBirth;
     private String email;
     private String phoneNumber;
+    private String password;
     private Boolean verifiedAccount = false;
 
     public Long getId() {
@@ -75,6 +76,14 @@ public class UserDTO {
 
     public void setPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     public Boolean getVerifiedAccount() {
