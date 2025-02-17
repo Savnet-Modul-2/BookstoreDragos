@@ -45,4 +45,15 @@ public class UserService {
     public void delete(User user) {
         userRepository.delete(user);
     }
+
+    public Boolean login(User user, String emailAddress, String password) {
+        String encryptedPassword = DigestUtils.md5DigestAsHex(password.getBytes(StandardCharsets.UTF_8));
+
+        if (!user.getEmail().equals(emailAddress) || !user.getPassword().equals(encryptedPassword)) return false;
+
+        user.setLoggedIn(true);
+        userRepository.save(user);
+
+        return true;
+    }
 }

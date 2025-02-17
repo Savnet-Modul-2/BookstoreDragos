@@ -63,4 +63,16 @@ public class UserController {
 
         return ResponseEntity.ok().body("Deleted user with ID " + userID + ".");
     }
+
+    @PostMapping(path = "/login")
+    public ResponseEntity<?> login(@RequestParam() String emailAddress, @RequestParam() String password) {
+        User user = userRepository.findByEmail(emailAddress).orElseThrow(() -> new EntityNotFoundException("User with email address " + emailAddress + " not found."));
+        Boolean loginValidation = userService.login(user, emailAddress, password);
+
+        if (loginValidation) {
+            return ResponseEntity.noContent().build();
+        } else {
+            return ResponseEntity.ok().body("Login attempt unsuccessful. Invalid email address or password.");
+        }
+    }
 }

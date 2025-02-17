@@ -13,10 +13,10 @@ public class User {
     @Column(name = "ID")
     private Long id;
 
-    @Column(name = "FIRSTNAME")
+    @Column(name = "FIRST_NAME")
     private String firstName;
 
-    @Column(name = "LASTNAME")
+    @Column(name = "LAST_NAME")
     private String lastName;
 
     @Column(name = "GENDER")
@@ -25,7 +25,7 @@ public class User {
     @Column(name = "COUNTRY")
     private String country;
 
-    @Column(name = "YEAROFBIRTH")
+    @Column(name = "YEAR_OF_BIRTH")
     private Integer yearOfBirth;
 
     @Column(name = "EMAIL")
@@ -37,13 +37,13 @@ public class User {
     @Column(name = "PASSWORD")
     private String password;
 
-    @Column(name = "VERIFIED ACCOUNT")
+    @Column(name = "VERIFIED_ACCOUNT")
     private Boolean verifiedAccount = false;
 
-    @Column(name = "VERIFICATION CODE")
-    private String verificationCode;
+    @Column(name = "LOGGED_IN")
+    private Boolean loggedIn = false;
 
-    @Column(name = "VERIFICATION CODE GENERATION TIME")
+    private String verificationCode;
     private LocalDateTime verificationCodeGenerationTime;
 
     public Long getId() {
@@ -124,6 +124,14 @@ public class User {
 
     public void setVerifiedAccount(Boolean verifiedAccount) {
         this.verifiedAccount = verifiedAccount;
+    }
+
+    public Boolean getLoggedIn() {
+        return loggedIn;
+    }
+
+    public void setLoggedIn(Boolean loggedIn) {
+        this.loggedIn = loggedIn;
     }
 
     public String getVerificationCode() {
