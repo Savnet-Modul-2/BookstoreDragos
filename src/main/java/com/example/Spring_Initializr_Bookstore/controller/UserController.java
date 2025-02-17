@@ -4,6 +4,7 @@ import com.example.Spring_Initializr_Bookstore.entities.User;
 import com.example.Spring_Initializr_Bookstore.entitiesDTO.UserDTO;
 import com.example.Spring_Initializr_Bookstore.mapper.UserMapper;
 import com.example.Spring_Initializr_Bookstore.repositories.UserRepository;
+import com.example.Spring_Initializr_Bookstore.service.EmailService;
 import com.example.Spring_Initializr_Bookstore.service.UserService;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,11 +20,15 @@ public class UserController {
     private UserRepository userRepository;
     @Autowired()
     private UserService userService;
+    @Autowired
+    private EmailService emailService;
 
     @PostMapping(path = "/create-user")
     public ResponseEntity<?> create(@RequestBody() UserDTO userDTO) {
         User userToCreate = UserMapper.userDTO2User(userDTO);
         User createdUser = userService.create(userToCreate);
+
+        emailService.sendVerification(createdUser);
 
         return ResponseEntity.ok(UserMapper.user2UserDTO(createdUser));
     }

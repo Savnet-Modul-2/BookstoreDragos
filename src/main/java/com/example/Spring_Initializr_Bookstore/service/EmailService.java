@@ -2,6 +2,7 @@ package com.example.Spring_Initializr_Bookstore.service;
 
 import com.example.Spring_Initializr_Bookstore.entities.User;
 import com.example.Spring_Initializr_Bookstore.repositories.UserRepository;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
@@ -21,6 +22,16 @@ public class EmailService {
     @Value("${spring.mail.username}")
     private String sender;
 
+    public User checkUser(Long userID) {
+        User user = userRepository.findById(userID).orElseThrow(() -> new EntityNotFoundException("User with ID " + userID + "not found."));
+
+        if (user.getEmail() == null || user.getEmail().isEmpty()) {
+            throw new IllegalArgumentException("User with ID " + user.getId() + " does not have an email address.");
+        }
+
+        return user;
+    }
+
     public void send(String recipient, String subject, String text) {
         SimpleMailMessage email = new SimpleMailMessage();
 
@@ -33,18 +44,13 @@ public class EmailService {
     }
 
     public void sendVerification(User user) {
-        user.setVerificationCode(generateVerificationCode());
-        user.setVerificationCodeGenerationTime(LocalDateTime.now());
-        userRepository.save(user);
+        if (!user.getVerifiedAccount()) {
+            user.setVerificationCode(generateVerificationCode());
+            user.setVerificationCodeGenerationTime(LocalDateTime.now());
+            userRepository.save(user);
 
-        SimpleMailMessage email = new SimpleMailMessage();
-
-        email.setFrom(sender);
-        email.setTo(user.getEmail());
-        email.setSubject("Bookstore Verification Email");
-        email.setText("Your verification code is " + user.getVerificationCode() + ".\nThis verification code will expire in 5 minutes.");
-
-        javaMailSender.send(email);
+            send(user.getEmail(), "Bookstore Verification Email", "Your verification code is " + user.getVerificationCode() + ".\nThis verification code will expire in 5 minutes.");
+        }
     }
 
     public String generateVerificationCode() {
