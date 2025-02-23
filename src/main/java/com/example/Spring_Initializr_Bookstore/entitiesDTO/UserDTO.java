@@ -2,13 +2,15 @@ package com.example.Spring_Initializr_Bookstore.entitiesDTO;
 
 import com.example.Spring_Initializr_Bookstore.Gender;
 
+import java.time.LocalDate;
+
 public class UserDTO {
     private Long id;
     private String firstName;
     private String lastName;
     private Gender gender;
     private String country;
-    private Integer yearOfBirth;
+    private LocalDate yearOfBirth;
     private String email;
     private String phoneNumber;
     private String password;
@@ -55,11 +57,11 @@ public class UserDTO {
     }
 
     public Integer getYearOfBirth() {
-        return yearOfBirth;
+        return yearOfBirth.getYear();
     }
 
-    public void setYearOfBirth(int yearOfBirth) {
-        this.yearOfBirth = yearOfBirth;
+    public void setYearOfBirth(Integer yearOfBirth) {
+        this.yearOfBirth = LocalDate.ofYearDay(yearOfBirth, 1);
     }
 
     public String getEmail() {

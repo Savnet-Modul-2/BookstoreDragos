@@ -3,6 +3,7 @@ package com.example.Spring_Initializr_Bookstore.entities;
 import com.example.Spring_Initializr_Bookstore.Gender;
 import jakarta.persistence.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity(name = "users")
@@ -19,6 +20,7 @@ public class User {
     @Column(name = "LAST_NAME")
     private String lastName;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "GENDER")
     private Gender gender;
 
@@ -26,7 +28,7 @@ public class User {
     private String country;
 
     @Column(name = "YEAR_OF_BIRTH")
-    private Integer yearOfBirth;
+    private LocalDate yearOfBirth;
 
     @Column(name = "EMAIL")
     private String email;
@@ -40,11 +42,14 @@ public class User {
     @Column(name = "VERIFIED_ACCOUNT")
     private Boolean verifiedAccount = false;
 
+    @Column(name = "VERIFICATION_CODE")
+    private String verificationCode;
+
+    @Column(name = "VERIFICATION_CODE_GENERATION_TIME")
+    private LocalDateTime verificationCodeGenerationTime;
+
     @Column(name = "LOGGED_IN")
     private Boolean loggedIn = false;
-
-    private String verificationCode;
-    private LocalDateTime verificationCodeGenerationTime;
 
     public Long getId() {
         return id;
@@ -87,11 +92,11 @@ public class User {
     }
 
     public Integer getYearOfBirth() {
-        return yearOfBirth;
+        return yearOfBirth.getYear();
     }
 
     public void setYearOfBirth(Integer yearOfBirth) {
-        this.yearOfBirth = yearOfBirth;
+        this.yearOfBirth = LocalDate.ofYearDay(yearOfBirth, 1);
     }
 
     public String getEmail() {

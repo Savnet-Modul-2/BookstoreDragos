@@ -5,16 +5,27 @@ import com.example.Spring_Initializr_Bookstore.entitiesDTO.UserDTO;
 import com.example.Spring_Initializr_Bookstore.repositories.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Random;
 
 @Service()
 public class UserService {
     @Autowired()
     private UserRepository userRepository;
+    @Autowired
+    private JavaMailSender javaMailSender;
+
+    @Value("${spring.mail.username}")
+    private String sender;
 
     public User create(User user) {
         if (user.getId() != null) throw new RuntimeException("Cannot provide an ID when creating a new user.");
@@ -44,6 +55,65 @@ public class UserService {
 
     public void delete(User user) {
         userRepository.delete(user);
+    }
+
+    public User checkUser(Long userID) {
+        User user = userRepository.findById(userID).orElseThrow(() -> new EntityNotFoundException("User with ID " + userID + "not found."));
+
+        if (user.getEmail() == null || user.getEmail().isEmpty()) {
+            throw new IllegalArgumentException("User with ID " + user.getId() + " does not have an email address.");
+        }
+
+        return user;
+    }
+
+    public void send(String recipient, String subject, String text) {
+        SimpleMailMessage email = new SimpleMailMessage();
+
+        email.setFrom(sender);
+        email.setTo(recipient);
+        email.setSubject(subject);
+        email.setText(text);
+
+        javaMailSender.send(email);
+    }
+
+    public void sendVerification(User user) {
+        if (!user.getVerifiedAccount()) {
+            user.setVerificationCode(generateVerificationCode());
+            user.setVerificationCodeGenerationTime(LocalDateTime.now());
+            userRepository.save(user);
+
+            send(user.getEmail(), "Bookstore Verification Email", "Your verification code is " + user.getVerificationCode() + ".\nThis verification code will expire in 5 minutes.");
+        }
+    }
+
+    public String generateVerificationCode() {
+        Random random = new Random();
+        return String.valueOf(random.nextInt(100000, 999999));
+    }
+
+    public String verifyCode(User user, String code) {
+        LocalDateTime currentTime = LocalDateTime.now();
+        Duration elapsedTime = Duration.between(user.getVerificationCodeGenerationTime(), currentTime);
+
+        if (elapsedTime.toMinutes() > 5) {
+            user.setVerificationCode(null);
+
+            userRepository.save(user);
+
+            return "\nVerification code expired. Request a new verification code.";
+        } else if (!user.getVerificationCode().equals(code)) {
+            return "\nUser account verification unsuccessful. Invalid code provided.";
+        } else {
+            user.setVerifiedAccount(true);
+            user.setVerificationCode(null);
+            user.setVerificationCodeGenerationTime(null);
+
+            userRepository.save(user);
+
+            return "\nUser account verification successful.";
+        }
     }
 
     public Boolean login(User user, String emailAddress, String password) {

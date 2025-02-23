@@ -4,7 +4,6 @@ import com.example.Spring_Initializr_Bookstore.entities.User;
 import com.example.Spring_Initializr_Bookstore.entitiesDTO.UserDTO;
 import com.example.Spring_Initializr_Bookstore.mapper.UserMapper;
 import com.example.Spring_Initializr_Bookstore.repositories.UserRepository;
-import com.example.Spring_Initializr_Bookstore.service.EmailService;
 import com.example.Spring_Initializr_Bookstore.service.UserService;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,15 +19,13 @@ public class UserController {
     private UserRepository userRepository;
     @Autowired()
     private UserService userService;
-    @Autowired
-    private EmailService emailService;
 
     @PostMapping(path = "/create-user")
     public ResponseEntity<?> create(@RequestBody() UserDTO userDTO) {
         User userToCreate = UserMapper.userDTO2User(userDTO);
         User createdUser = userService.create(userToCreate);
 
-        emailService.sendVerification(createdUser);
+        userService.sendVerification(createdUser);
 
         return ResponseEntity.ok(UserMapper.user2UserDTO(createdUser));
     }
@@ -62,6 +59,32 @@ public class UserController {
         userService.delete(user);
 
         return ResponseEntity.ok().body("Deleted user with ID " + userID + ".");
+    }
+
+    @PostMapping(path = "/send-email/{userID}")
+    public ResponseEntity<?> sendEmail(@PathVariable(name = "userID") Long userID, @RequestParam() String subject, @RequestParam() String text) {
+        User user = userService.checkUser(userID);
+
+        userService.send(user.getEmail(), subject, text);
+
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping(path = "/send-verification-email/{userID}")
+    public ResponseEntity<?> sendVerificationEmail(@PathVariable(name = "userID") Long userID) {
+        User user = userService.checkUser(userID);
+
+        userService.sendVerification(user);
+
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping(path = "/verify-code")
+    public ResponseEntity<?> verifyCode(@RequestParam() Long userID, @RequestParam() String code) {
+        User user = userRepository.findById(userID).orElseThrow(() -> new EntityNotFoundException("User with ID " + userID + " not found."));
+        String message = userService.verifyCode(user, code);
+
+        return ResponseEntity.ok(UserMapper.user2UserDTO(user) + message);
     }
 
     @PostMapping(path = "/login")

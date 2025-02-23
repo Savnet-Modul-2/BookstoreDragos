@@ -4,19 +4,37 @@ import com.example.Spring_Initializr_Bookstore.entities.Librarian;
 import com.example.Spring_Initializr_Bookstore.entitiesDTO.LibrarianDTO;
 
 public class LibrarianMapper {
-    public static Librarian librarianDTO2Librarian(LibrarianDTO bookDTO) {
-        Librarian book = new Librarian();
+    public static Librarian librarianDTO2Librarian(LibrarianDTO librarianDTO) {
+        Librarian librarian = new Librarian();
 
-        book.setId(bookDTO.getId());
+        librarian.setId(librarianDTO.getId());
+        librarian.setName(librarianDTO.getName());
+        librarian.setEmail(librarianDTO.getEmailAddress());
+        librarian.setPassword(librarianDTO.getPassword());
+        librarian.setVerifiedAccount(librarianDTO.getVerifiedAccount());
+        librarian.setLoggedIn(librarianDTO.getLoggedIn());
 
-        return book;
+        if (librarianDTO.getLibraryDTO() != null) {
+            librarian.setLibrary(LibraryMapper.libraryDTO2Library(librarianDTO.getLibraryDTO()));
+        }
+
+        return librarian;
     }
 
-    public static LibrarianDTO librarian2LibrarianDTO(LibrarianDTO book) {
-        LibrarianDTO bookDTO = new LibrarianDTO();
+    public static LibrarianDTO librarian2LibrarianDTO(Librarian librarian) {
+        LibrarianDTO librarianDTO = new LibrarianDTO();
 
-        bookDTO.setId(book.getId());
-
-        return bookDTO;
+        librarianDTO.setId(librarian.getId());
+        librarianDTO.setName(librarian.getName());
+        librarianDTO.setEmailAddress(librarian.getEmail());
+        librarianDTO.setPassword(librarian.getPassword());
+        librarianDTO.setVerifiedAccount(librarian.getVerifiedAccount());
+        librarian.setLoggedIn(librarianDTO.getLoggedIn());
+/*
+        if (librarian.getLibrary() != null) {
+            librarianDTO.setLibraryDTO(LibraryMapper.library2LibraryDTO(librarian.getLibrary()));
+        }
+*/
+        return librarianDTO;
     }
 }

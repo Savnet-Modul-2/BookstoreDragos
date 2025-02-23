@@ -8,6 +8,17 @@ public class LibraryMapper {
         Library library = new Library();
 
         library.setId(libraryDTO.getId());
+        library.setName(libraryDTO.getName());
+        library.setAddress(libraryDTO.getAddress());
+        library.setPhoneNumber(libraryDTO.getPhoneNumber());
+/*
+        if (libraryDTO.getLibrarianDTO() != null) {
+            library.setLibrarian(LibrarianMapper.librarianDTO2Librarian(libraryDTO.getLibrarianDTO()));
+        }
+*/
+        if (libraryDTO.getBookDTOS() != null && !libraryDTO.getBookDTOS().isEmpty()) {
+            library.setBooks(libraryDTO.getBookDTOS().stream().map(BookMapper::bookDTO2Book).toList());
+        }
 
         return library;
     }
@@ -16,6 +27,17 @@ public class LibraryMapper {
         LibraryDTO libraryDTO = new LibraryDTO();
 
         libraryDTO.setId(library.getId());
+        libraryDTO.setName(library.getName());
+        libraryDTO.setAddress(library.getAddress());
+        libraryDTO.setPhoneNumber(library.getPhoneNumber());
+/*
+        if (library.getLibrarian() != null) {
+            libraryDTO.setLibrarianDTO(LibrarianMapper.librarian2LibrarianDTO(library.getLibrarian()));
+        }
+*/
+        if (library.getBooks() != null && !library.getBooks().isEmpty()) {
+            libraryDTO.setBookDTOS(library.getBooks().stream().map(BookMapper::book2BookDTO).toList());
+        }
 
         return libraryDTO;
     }
