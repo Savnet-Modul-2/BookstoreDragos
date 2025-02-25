@@ -7,6 +7,7 @@ import com.example.SpringBookstore.repositories.LibraryRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.apache.coyote.BadRequestException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.DigestUtils;
@@ -18,10 +19,15 @@ import java.util.List;
 
 @Service
 public class LibrarianService extends EmailService {
+    private final LibrarianRepository librarianRepository;
+    private final LibraryRepository libraryRepository;
+
     @Autowired
-    private LibrarianRepository librarianRepository;
-    @Autowired
-    private LibraryRepository libraryRepository;
+    public LibrarianService(JavaMailSender javaMailSender, LibrarianRepository librarianRepository, LibraryRepository libraryRepository) {
+        super(javaMailSender);
+        this.librarianRepository = librarianRepository;
+        this.libraryRepository = libraryRepository;
+    }
 
     @Transactional
     public Librarian create(Librarian librarianToCreate) {

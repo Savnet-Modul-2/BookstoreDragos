@@ -4,6 +4,8 @@ import com.example.SpringBookstore.BookCategory;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity(name = "book")
 @Table(name = "books", schema = "public")
@@ -34,6 +36,9 @@ public class Book {
 
     @Column(name = "RELEASE_DATE")
     private LocalDate releaseDate;
+
+    @OneToMany(mappedBy = "book", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Exemplary> exemplars = new ArrayList<>();
 
     @ManyToOne
     @JoinColumn(name = "LIBRARY_ID")
@@ -101,6 +106,14 @@ public class Book {
 
     public void setReleaseDate(Integer releaseDate) {
         this.releaseDate = LocalDate.ofYearDay(releaseDate, 1);
+    }
+
+    public List<Exemplary> getExemplars() {
+        return exemplars;
+    }
+
+    public void setExemplars(List<Exemplary> exemplars) {
+        this.exemplars = exemplars;
     }
 
     public Library getLibrary() {

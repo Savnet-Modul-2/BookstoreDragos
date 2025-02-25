@@ -14,8 +14,12 @@ import java.util.List;
 @RestController
 @RequestMapping(path = "/librarians")
 public class LibrarianController {
+    private final LibrarianService librarianService;
+
     @Autowired
-    private LibrarianService librarianService;
+    public LibrarianController(LibrarianService librarianService) {
+        this.librarianService = librarianService;
+    }
 
     @PostMapping
     public ResponseEntity<?> create(@RequestBody LibrarianDTO librarianDTO) {

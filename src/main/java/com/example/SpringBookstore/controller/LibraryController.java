@@ -11,8 +11,12 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping(path = "/libraries")
 public class LibraryController {
+    private final LibraryService libraryService;
+
     @Autowired
-    private LibraryService libraryService;
+    public LibraryController(LibraryService libraryService) {
+        this.libraryService = libraryService;
+    }
 
     @PostMapping
     public ResponseEntity<?> create(@RequestBody LibraryDTO libraryDTO) {
