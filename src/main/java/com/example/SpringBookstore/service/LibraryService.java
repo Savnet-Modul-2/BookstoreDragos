@@ -8,8 +8,12 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class LibraryService {
+    private final LibraryRepository libraryRepository;
+
     @Autowired
-    private LibraryRepository libraryRepository;
+    public LibraryService(LibraryRepository libraryRepository) {
+        this.libraryRepository = libraryRepository;
+    }
 
     public Library create(Library libraryToCreate) {
         return libraryRepository.save(libraryToCreate);

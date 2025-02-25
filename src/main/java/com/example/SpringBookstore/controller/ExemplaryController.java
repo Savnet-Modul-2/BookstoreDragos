@@ -2,7 +2,6 @@ package com.example.SpringBookstore.controller;
 
 import com.example.SpringBookstore.entities.Exemplary;
 import com.example.SpringBookstore.entitiesDTO.ExemplarsCreateDTO;
-import com.example.SpringBookstore.entitiesDTO.ExemplarsResponseDTO;
 import com.example.SpringBookstore.entitiesDTO.ExemplaryDTO;
 import com.example.SpringBookstore.mapper.ExemplaryMapper;
 import com.example.SpringBookstore.service.ExemplaryService;
@@ -16,13 +15,21 @@ import java.util.List;
 @RestController
 @RequestMapping(path = "/exemplars")
 public class ExemplaryController {
+    private final ExemplaryService exemplaryService;
+
     @Autowired
-    private ExemplaryService exemplaryService;
+    public ExemplaryController(ExemplaryService exemplaryService) {
+        this.exemplaryService = exemplaryService;
+    }
 
     @PostMapping
-    public ResponseEntity<?> createMultiple(@RequestBody ExemplarsCreateDTO exemplarsCreateDTO) {
-        ExemplarsResponseDTO createdExemplars = exemplaryService.createMultiple(exemplarsCreateDTO);
-        return ResponseEntity.ok().body(createdExemplars);
+    public ResponseEntity<?> create(@RequestBody ExemplarsCreateDTO exemplarsCreateDTO) {
+        List<Exemplary> exemplarsToCreate = ExemplaryMapper.exemplarsCreateDTO2Exemplars(exemplarsCreateDTO);
+        List<Exemplary> createdExemplars = exemplaryService.create(exemplarsToCreate, exemplarsCreateDTO.getBookID());
+
+        return ResponseEntity.ok(createdExemplars.stream()
+                .map(ExemplaryMapper::exemplary2ExemplaryDTO)
+                .toList());
     }
 
     @GetMapping

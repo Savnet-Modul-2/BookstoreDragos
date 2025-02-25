@@ -1,18 +1,10 @@
 package com.example.SpringBookstore.entitiesDTO;
 
 public class ExemplarsCreateDTO {
-    private Long bookID;
     private String publisher;
     private Integer maximumBookingTime;
     private Integer numberOfExemplars;
-
-    public Long getBookID() {
-        return bookID;
-    }
-
-    public void setBookID(Long bookID) {
-        this.bookID = bookID;
-    }
+    private Long bookID;
 
     public String getPublisher() {
         return publisher;
@@ -28,6 +20,14 @@ public class ExemplarsCreateDTO {
 
     public void setMaximumBookingTime(Integer maximumBookingTime) {
         this.maximumBookingTime = maximumBookingTime;
+    }
+
+    public Long getBookID() {
+        return bookID;
+    }
+
+    public void setBookID(Long bookID) {
+        this.bookID = bookID;
     }
 
     public Integer getNumberOfExemplars() {

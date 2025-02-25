@@ -17,12 +17,16 @@ import java.util.List;
 
 @Service
 public class BookService {
+    private final BookRepository bookRepository;
+    private final LibraryRepository libraryRepository;
+    private final LibraryService libraryService;
+
     @Autowired
-    private BookRepository bookRepository;
-    @Autowired
-    private LibraryRepository libraryRepository;
-    @Autowired
-    private LibraryService libraryService;
+    public BookService(BookRepository bookRepository, LibraryRepository libraryRepository, LibraryService libraryService) {
+        this.bookRepository = bookRepository;
+        this.libraryRepository = libraryRepository;
+        this.libraryService = libraryService;
+    }
 
     public Book create(Book book) {
         return bookRepository.save(book);

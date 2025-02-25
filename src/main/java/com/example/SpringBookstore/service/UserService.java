@@ -5,6 +5,7 @@ import com.example.SpringBookstore.entitiesDTO.UserDTO;
 import com.example.SpringBookstore.repositories.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 
@@ -15,8 +16,13 @@ import java.util.List;
 
 @Service
 public class UserService extends EmailService {
+    private final UserRepository userRepository;
+
     @Autowired
-    private UserRepository userRepository;
+    public UserService(JavaMailSender javaMailSender, UserRepository userRepository) {
+        super(javaMailSender);
+        this.userRepository = userRepository;
+    }
 
     public User create(User userToCreate) {
         if (userToCreate.getId() != null) {
