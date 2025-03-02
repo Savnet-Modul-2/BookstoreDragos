@@ -2,7 +2,6 @@ package com.example.SpringBookstore.controller;
 
 import com.example.SpringBookstore.entities.Exemplary;
 import com.example.SpringBookstore.entitiesDTO.ExemplarsCreateDTO;
-import com.example.SpringBookstore.entitiesDTO.ExemplaryDTO;
 import com.example.SpringBookstore.mapper.ExemplaryMapper;
 import com.example.SpringBookstore.service.ExemplaryService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,14 +32,12 @@ public class ExemplaryController {
     }
 
     @GetMapping
-    public ResponseEntity<?> listPaginated(@RequestParam(required = false) Integer pageNumber, @RequestParam(required = false) Integer numberOfElements) {
-        Page<Exemplary> exemplars = exemplaryService.listPaginated(pageNumber, numberOfElements);
+    public ResponseEntity<?> listPaginated(@RequestParam(required = false) Long bookID, @RequestParam(required = false) Integer pageNumber, @RequestParam(required = false) Integer numberOfElements) {
+        Page<Exemplary> exemplars = exemplaryService.listPaginated(bookID, pageNumber, numberOfElements);
 
-        List<ExemplaryDTO> exemplaryDTOS = exemplars.stream()
+        return ResponseEntity.ok(exemplars.stream()
                 .map(ExemplaryMapper::exemplary2ExemplaryDTO)
-                .toList();
-
-        return ResponseEntity.ok(exemplaryDTOS);
+                .toList());
     }
 
     @DeleteMapping(path = "/{exemplaryID}")

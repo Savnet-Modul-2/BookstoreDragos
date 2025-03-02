@@ -20,11 +20,14 @@ public class Exemplary {
     @JoinColumn(name = "BOOK_ID")
     private Book book;
 
-    public Long getId() {
+    @OneToOne
+    private Reservation reservation;
+
+    public Long getID() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setID(Long id) {
         this.id = id;
     }
 
@@ -50,5 +53,13 @@ public class Exemplary {
 
     public void setBook(Book book) {
         this.book = book;
+    }
+
+    public Reservation getReservation() {
+        return reservation;
+    }
+
+    public void setReservation(Reservation reservation) {
+        this.reservation = reservation;
     }
 }

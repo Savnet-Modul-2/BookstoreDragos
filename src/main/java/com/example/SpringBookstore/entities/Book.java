@@ -44,19 +44,19 @@ public class Book {
     @JoinColumn(name = "LIBRARY_ID")
     private Library library;
 
-    public Long getId() {
+    public Long getID() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setID(Long id) {
         this.id = id;
     }
 
-    public Long getIsbn() {
+    public Long getISBN() {
         return isbn;
     }
 
-    public void setIsbn(Long isbn) {
+    public void setISBN(Long isbn) {
         this.isbn = isbn;
     }
 
@@ -122,5 +122,19 @@ public class Book {
 
     public void setLibrary(Library library) {
         this.library = library;
+    }
+
+    public void addExemplary(Exemplary exemplary) {
+        if (!exemplars.contains(exemplary)) {
+            exemplars.add(exemplary);
+            exemplary.setBook(this);
+        }
+    }
+
+    public void removeExemplary(Exemplary exemplary) {
+        if (exemplars.contains(exemplary)) {
+            exemplars.remove(exemplary);
+            exemplary.setBook(null);
+        }
     }
 }

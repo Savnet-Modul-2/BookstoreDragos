@@ -7,7 +7,7 @@ public class LibraryMapper {
     public static Library libraryDTO2Library(LibraryDTO libraryDTO) {
         Library library = new Library();
 
-        library.setId(libraryDTO.getId());
+        library.setID(libraryDTO.getID());
         library.setName(libraryDTO.getName());
         library.setAddress(libraryDTO.getAddress());
         library.setPhoneNumber(libraryDTO.getPhoneNumber());
@@ -24,7 +24,7 @@ public class LibraryMapper {
     public static LibraryDTO library2LibraryDTO(Library library) {
         LibraryDTO libraryDTO = new LibraryDTO();
 
-        libraryDTO.setId(library.getId());
+        libraryDTO.setID(library.getID());
         libraryDTO.setName(library.getName());
         libraryDTO.setAddress(library.getAddress());
         libraryDTO.setPhoneNumber(library.getPhoneNumber());

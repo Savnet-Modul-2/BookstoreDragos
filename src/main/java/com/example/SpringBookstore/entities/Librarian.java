@@ -34,11 +34,11 @@ public class Librarian {
     @JoinColumn(name = "LIBRARY_ID", referencedColumnName = "ID")
     private Library library;
 
-    public Long getId() {
+    public Long getID() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setID(Long id) {
         this.id = id;
     }
 
