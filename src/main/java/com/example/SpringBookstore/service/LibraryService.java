@@ -16,6 +16,10 @@ public class LibraryService {
     }
 
     public Library create(Library libraryToCreate) {
+        if (libraryToCreate.getID() != null) {
+            throw new RuntimeException("Cannot provide an ID when creating a new Library.");
+        }
+
         return libraryRepository.save(libraryToCreate);
     }
 

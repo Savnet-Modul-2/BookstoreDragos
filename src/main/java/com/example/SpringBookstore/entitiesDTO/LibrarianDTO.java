@@ -8,11 +8,11 @@ public class LibrarianDTO {
     private Boolean verifiedAccount = false;
     private LibraryDTO libraryDTO;
 
-    public Long getId() {
+    public Long getID() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setID(Long id) {
         this.id = id;
     }
 

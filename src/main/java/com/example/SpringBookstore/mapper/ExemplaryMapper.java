@@ -11,7 +11,7 @@ public class ExemplaryMapper {
     public static ExemplaryDTO exemplary2ExemplaryDTO(Exemplary exemplary) {
         ExemplaryDTO exemplaryDTO = new ExemplaryDTO();
 
-        exemplaryDTO.setId(exemplary.getId());
+        exemplaryDTO.setID(exemplary.getID());
         exemplaryDTO.setPublisher(exemplary.getPublisher());
         exemplaryDTO.setMaximumBookingTime(exemplary.getMaximumBookingTime());
         exemplaryDTO.setBookDTO(BookMapper.book2BookDTO(exemplary.getBook()));

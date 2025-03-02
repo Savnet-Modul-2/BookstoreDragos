@@ -4,7 +4,6 @@ import com.example.SpringBookstore.entities.Librarian;
 import com.example.SpringBookstore.entitiesDTO.LibrarianDTO;
 import com.example.SpringBookstore.mapper.LibrarianMapper;
 import com.example.SpringBookstore.service.LibrarianService;
-import org.apache.coyote.BadRequestException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -41,11 +40,9 @@ public class LibrarianController {
     public ResponseEntity<?> findAll() {
         List<Librarian> librarians = librarianService.findAll();
 
-        List<LibrarianDTO> librarianDTOS = librarians.stream()
+        return ResponseEntity.ok(librarians.stream()
                 .map(LibrarianMapper::librarian2LibrarianDTO)
-                .toList();
-
-        return ResponseEntity.ok(librarianDTOS);
+                .toList());
     }
 
     @DeleteMapping(path = "/{librarianID}")
@@ -70,7 +67,7 @@ public class LibrarianController {
     }
 
     @PostMapping(path = "/login")
-    public ResponseEntity<?> login(@RequestParam String emailAddress, @RequestParam String password) throws BadRequestException {
+    public ResponseEntity<?> login(@RequestParam String emailAddress, @RequestParam String password) {
         Librarian librarian = librarianService.login(emailAddress, password);
         return ResponseEntity.ok(LibrarianMapper.librarian2LibrarianDTO(librarian));
     }
