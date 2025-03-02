@@ -50,7 +50,7 @@ public class User {
     @Column(name = "VERIFICATION_CODE_GENERATION_TIME")
     private LocalDateTime verificationCodeGenerationTime;
 
-    @OneToMany
+    @OneToMany(mappedBy = "user")
     private List<Reservation> reservations = new ArrayList<>();
 
     public Long getID() {

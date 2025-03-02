@@ -2,6 +2,8 @@ package com.example.SpringBookstore.entities;
 
 import jakarta.persistence.*;
 
+import java.util.List;
+
 @Entity(name = "exemplary")
 @Table(name = "exemplars", schema = "public")
 public class Exemplary {
@@ -20,8 +22,8 @@ public class Exemplary {
     @JoinColumn(name = "BOOK_ID")
     private Book book;
 
-    @OneToOne
-    private Reservation reservation;
+    @OneToMany(mappedBy = "exemplary")
+    private List<Reservation> reservations;
 
     public Long getID() {
         return id;
@@ -55,11 +57,25 @@ public class Exemplary {
         this.book = book;
     }
 
-    public Reservation getReservation() {
-        return reservation;
+    public List<Reservation> getReservations() {
+        return reservations;
     }
 
-    public void setReservation(Reservation reservation) {
-        this.reservation = reservation;
+    public void setReservations(List<Reservation> reservations) {
+        this.reservations = reservations;
+    }
+
+    public void addReservation(Reservation reservation) {
+        if (!reservations.contains(reservation)) {
+            reservations.add(reservation);
+            reservation.setExemplary(this);
+        }
+    }
+
+    public void removeReservation(Reservation reservation) {
+        if (reservations.contains(reservation)) {
+            reservations.remove(reservation);
+            reservation.setExemplary(null);
+        }
     }
 }

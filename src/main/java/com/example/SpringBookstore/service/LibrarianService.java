@@ -65,9 +65,11 @@ public class LibrarianService extends EmailService {
     }
 
     public void delete(Long librarianID) {
-        if (librarianRepository.existsById(librarianID)) {
-            librarianRepository.deleteById(librarianID);
+        if (!librarianRepository.existsById(librarianID)) {
+            throw new EntityNotFoundException("Librarian with ID " + librarianID + " not found.");
         }
+
+        librarianRepository.deleteById(librarianID);
     }
 
     public Librarian checkEmail(Long librarianID) {

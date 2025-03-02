@@ -2,6 +2,7 @@ package com.example.SpringBookstore.controller;
 
 import com.example.SpringBookstore.entities.Book;
 import com.example.SpringBookstore.entities.Reservation;
+import com.example.SpringBookstore.entitiesDTO.ReservationDTO;
 import com.example.SpringBookstore.mapper.BookMapper;
 import com.example.SpringBookstore.mapper.ReservationMapper;
 import com.example.SpringBookstore.service.ReservationService;
@@ -9,8 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.time.LocalDate;
 
 @RestController
 @RequestMapping(path = "/reservations")
@@ -23,8 +22,8 @@ public class ReservationController {
     }
 
     @GetMapping
-    public ResponseEntity<?> searchBooks(@RequestParam(required = false) String title, @RequestParam(required = false) String author, @RequestParam Integer pageNumber, @RequestParam Integer numberOfElements) {
-        Page<Book> foundBooks = reservationService.searchBooks(title, author, pageNumber, numberOfElements);
+    public ResponseEntity<?> searchBooks(@RequestParam(required = false) String title, @RequestParam(required = false) String author, @RequestParam Integer pageNumber, @RequestParam Integer pageSize) {
+        Page<Book> foundBooks = reservationService.searchBooks(title, author, pageNumber, pageSize);
 
         return ResponseEntity.ok(foundBooks.stream()
                 .map(BookMapper::book2BookDTO)
@@ -32,8 +31,8 @@ public class ReservationController {
     }
 
     @PostMapping(path = "/{userID}/{bookID}")
-    public ResponseEntity<?> reserveBook(@PathVariable(name = "userID") Long userID, @PathVariable(name = "bookID") Long bookID, @RequestParam LocalDate startDate, @RequestParam LocalDate endDate) {
-        Reservation reservation = reservationService.reserveBook(userID, bookID, startDate, endDate);
+    public ResponseEntity<?> reserveBook(@PathVariable(name = "userID") Long userID, @PathVariable(name = "bookID") Long bookID, @RequestBody ReservationDTO reservationDTO) {
+        Reservation reservation = reservationService.reserveBook(userID, bookID, reservationDTO.getStartDate(), reservationDTO.getEndDate());
         return ResponseEntity.ok(ReservationMapper.reservation2ReservationDTO(reservation));
     }
 }

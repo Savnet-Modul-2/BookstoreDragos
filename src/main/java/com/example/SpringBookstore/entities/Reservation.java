@@ -1,6 +1,6 @@
 package com.example.SpringBookstore.entities;
 
-import com.example.SpringBookstore.Status;
+import com.example.SpringBookstore.ReservationStatus;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
@@ -21,9 +21,9 @@ public class Reservation {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "STATUS")
-    private Status status;
+    private ReservationStatus reservationStatus;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "EXEMPLARY_ID")
     private Exemplary exemplary;
 
@@ -55,12 +55,12 @@ public class Reservation {
         this.endDate = endDate;
     }
 
-    public Status getStatus() {
-        return status;
+    public ReservationStatus getStatus() {
+        return reservationStatus;
     }
 
-    public void setStatus(Status status) {
-        this.status = status;
+    public void setStatus(ReservationStatus reservationStatus) {
+        this.reservationStatus = reservationStatus;
     }
 
     public Exemplary getExemplary() {

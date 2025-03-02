@@ -45,8 +45,8 @@ public class BookController {
     }
 
     @GetMapping(path = "/paginated")
-    public ResponseEntity<?> listPaginated(@RequestParam(required = false) Integer pageNumber, @RequestParam(required = false) Integer numberOfElements) {
-        Page<Book> books = bookService.listPaginated(pageNumber, numberOfElements);
+    public ResponseEntity<?> listPaginated(@RequestParam(required = false) Integer pageNumber, @RequestParam(required = false) Integer pageSize) {
+        Page<Book> books = bookService.listPaginated(pageNumber, pageSize);
 
         return ResponseEntity.ok(books.stream()
                 .map(BookMapper::book2BookDTO)

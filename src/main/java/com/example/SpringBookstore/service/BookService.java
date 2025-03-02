@@ -45,9 +45,9 @@ public class BookService {
         return bookRepository.findAll();
     }
 
-    public Page<Book> listPaginated(Integer pageNumber, Integer numberOfElements) {
-        if (pageNumber != null && numberOfElements != null) {
-            Pageable pageable = PageRequest.of(pageNumber, numberOfElements);
+    public Page<Book> listPaginated(Integer pageNumber, Integer pageSize) {
+        if (pageNumber != null && pageSize != null) {
+            Pageable pageable = PageRequest.of(pageNumber, pageSize);
             return bookRepository.findAll(pageable);
         }
 

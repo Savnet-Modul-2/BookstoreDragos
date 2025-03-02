@@ -36,9 +36,9 @@ public class ExemplaryService {
         return exemplarsToCreate;
     }
 
-    public Page<Exemplary> listPaginated(Long bookID, Integer pageNumber, Integer numberOfElements) {
-        if (pageNumber != null && numberOfElements != null) {
-            Pageable pageable = PageRequest.of(pageNumber, numberOfElements);
+    public Page<Exemplary> listPaginated(Long bookID, Integer pageNumber, Integer pageSize) {
+        if (pageNumber != null && pageSize != null) {
+            Pageable pageable = PageRequest.of(pageNumber, pageSize);
             return exemplaryRepository.findByBookId(bookID, pageable);
         }
 

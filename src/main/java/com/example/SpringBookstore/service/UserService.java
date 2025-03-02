@@ -60,8 +60,10 @@ public class UserService extends EmailService {
 
     public void delete(Long userID) {
         if (userRepository.existsById(userID)) {
-            userRepository.deleteById(userID);
+            throw new EntityNotFoundException("User with ID " + userID + " not found.");
         }
+
+        userRepository.deleteById(userID);
     }
 
     public User checkEmail(Long userID) {

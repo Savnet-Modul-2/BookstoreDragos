@@ -1,6 +1,6 @@
 package com.example.SpringBookstore;
 
-public enum Status {
+public enum ReservationStatus {
     PENDING,
     IN_PROGRESS,
     DELAYED,

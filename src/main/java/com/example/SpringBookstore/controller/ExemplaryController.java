@@ -32,8 +32,8 @@ public class ExemplaryController {
     }
 
     @GetMapping
-    public ResponseEntity<?> listPaginated(@RequestParam(required = false) Long bookID, @RequestParam(required = false) Integer pageNumber, @RequestParam(required = false) Integer numberOfElements) {
-        Page<Exemplary> exemplars = exemplaryService.listPaginated(bookID, pageNumber, numberOfElements);
+    public ResponseEntity<?> listPaginated(@RequestParam(required = false) Long bookID, @RequestParam(required = false) Integer pageNumber, @RequestParam(required = false) Integer pageSize) {
+        Page<Exemplary> exemplars = exemplaryService.listPaginated(bookID, pageNumber, pageSize);
 
         return ResponseEntity.ok(exemplars.stream()
                 .map(ExemplaryMapper::exemplary2ExemplaryDTO)

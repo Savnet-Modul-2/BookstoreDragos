@@ -1,6 +1,6 @@
 package com.example.SpringBookstore.entitiesDTO;
 
-import com.example.SpringBookstore.Status;
+import com.example.SpringBookstore.ReservationStatus;
 
 import java.time.LocalDate;
 
@@ -8,7 +8,7 @@ public class ReservationDTO {
     private Long id;
     private LocalDate startDate;
     private LocalDate endDate;
-    private Status status;
+    private ReservationStatus reservationStatus;
     private ExemplaryDTO exemplaryDTO;
     private UserDTO userDTO;
 
@@ -36,12 +36,12 @@ public class ReservationDTO {
         this.endDate = endDate;
     }
 
-    public Status getStatus() {
-        return status;
+    public ReservationStatus getStatus() {
+        return reservationStatus;
     }
 
-    public void setStatus(Status status) {
-        this.status = status;
+    public void setStatus(ReservationStatus reservationStatus) {
+        this.reservationStatus = reservationStatus;
     }
 
     public ExemplaryDTO getExemplaryDTO() {

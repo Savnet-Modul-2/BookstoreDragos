@@ -1,5 +1,6 @@
 package com.example.SpringBookstore.service;
 
+import com.example.SpringBookstore.ReservationStatus;
 import com.example.SpringBookstore.entities.Book;
 import com.example.SpringBookstore.entities.Exemplary;
 import com.example.SpringBookstore.entities.Reservation;
@@ -33,9 +34,9 @@ public class ReservationService {
         this.exemplaryRepository = exemplaryRepository;
     }
 
-    public Page<Book> searchBooks(String title, String author, Integer pageNumber, Integer numberOfElements) {
-        if (pageNumber != null && numberOfElements != null) {
-            Pageable pageable = PageRequest.of(pageNumber, numberOfElements);
+    public Page<Book> searchBooks(String title, String author, Integer pageNumber, Integer pageSize) {
+        if (pageNumber != null && pageSize != null) {
+            Pageable pageable = PageRequest.of(pageNumber, pageSize);
             return bookRepository.searchBooks(title, author, pageable);
         }
 
@@ -53,17 +54,17 @@ public class ReservationService {
         bookRepository.findById(bookID)
                 .orElseThrow(() -> new EntityNotFoundException("Book with ID " + bookID + " not found."));
 
-        Exemplary exemplary = exemplaryRepository.reserveExemplary(bookID)
+        Exemplary exemplary = exemplaryRepository.reserveExemplary(bookID, startDate, endDate)
                 .orElseThrow(() -> new EntityNotFoundException("No exemplars of book with ID " + bookID + " available."));
 
         Reservation reservation = new Reservation();
 
         reservation.setStartDate(startDate);
         reservation.setEndDate(endDate);
-        reservation.setExemplary(exemplary);
+        reservation.setStatus(ReservationStatus.PENDING);
 
+        exemplary.addReservation(reservation);
         user.addReservation(reservation);
-        exemplary.setReservation(reservation);
 
         reservationRepository.save(reservation);
         exemplaryRepository.save(exemplary);

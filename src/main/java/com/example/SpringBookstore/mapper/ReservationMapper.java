@@ -12,10 +12,7 @@ public class ReservationMapper {
         reservationDTO.setEndDate(reservation.getEndDate());
         reservationDTO.setStatus(reservation.getStatus());
         reservationDTO.setExemplaryDTO(ExemplaryMapper.exemplary2ExemplaryDTO(reservation.getExemplary()));
-
-        if (reservation.getUser() != null) {
-            reservationDTO.setUserDTO(UserMapper.user2UserDTO(reservation.getUser()));
-        }
+        reservationDTO.setUserDTO(UserMapper.user2UserDTO(reservation.getUser()));
 
         return reservationDTO;
     }
