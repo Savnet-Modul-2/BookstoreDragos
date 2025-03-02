@@ -12,6 +12,7 @@ import org.springframework.util.DigestUtils;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.InputMismatchException;
 import java.util.List;
 
 @Service
@@ -25,7 +26,7 @@ public class UserService extends EmailService {
     }
 
     public User create(User userToCreate) {
-        if (userToCreate.getId() != null) {
+        if (userToCreate.getID() != null) {
             throw new RuntimeException("Cannot provide an ID when creating a new user.");
         }
 
@@ -58,8 +59,11 @@ public class UserService extends EmailService {
     }
 
     public void delete(Long userID) {
-        User user = findByID(userID);
-        userRepository.delete(user);
+        if (userRepository.existsById(userID)) {
+            throw new EntityNotFoundException("User with ID " + userID + " not found.");
+        }
+
+        userRepository.deleteById(userID);
     }
 
     public User checkEmail(Long userID) {
@@ -67,7 +71,7 @@ public class UserService extends EmailService {
                 .orElseThrow(() -> new EntityNotFoundException("User with ID " + userID + "not found."));
 
         if (user.getEmail() == null || user.getEmail().isEmpty()) {
-            throw new IllegalArgumentException("User with ID " + user.getId() + " does not have an email address.");
+            throw new IllegalArgumentException("User with ID " + user.getID() + " does not have an email address.");
         }
 
         return user;
@@ -116,7 +120,7 @@ public class UserService extends EmailService {
         String encryptedPassword = DigestUtils.md5DigestAsHex(password.getBytes(StandardCharsets.UTF_8));
 
         if (!user.getEmail().equals(emailAddress) || !user.getPassword().equals(encryptedPassword)) {
-            throw new RuntimeException("Login unsuccessful. Invalid email address or password.");
+            throw new InputMismatchException("Login unsuccessful. Invalid email address or password.");
         }
 
         userRepository.save(user);

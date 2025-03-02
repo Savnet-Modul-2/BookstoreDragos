@@ -40,11 +40,9 @@ public class UserController {
     public ResponseEntity<?> findAll() {
         List<User> foundUsers = userService.findAll();
 
-        List<UserDTO> userDTOS = foundUsers.stream()
+        return ResponseEntity.ok(foundUsers.stream()
                 .map(UserMapper::user2UserDTO)
-                .toList();
-
-        return ResponseEntity.ok(userDTOS);
+                .toList());
     }
 
     @PutMapping(path = "/{userID}")

@@ -5,7 +5,6 @@ import com.example.SpringBookstore.entities.Library;
 import com.example.SpringBookstore.repositories.LibrarianRepository;
 import com.example.SpringBookstore.repositories.LibraryRepository;
 import jakarta.persistence.EntityNotFoundException;
-import org.apache.coyote.BadRequestException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
@@ -15,6 +14,7 @@ import org.springframework.util.DigestUtils;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.InputMismatchException;
 import java.util.List;
 
 @Service
@@ -31,7 +31,7 @@ public class LibrarianService extends EmailService {
 
     @Transactional
     public Librarian create(Librarian librarianToCreate) {
-        if (librarianToCreate.getId() != null) {
+        if (librarianToCreate.getID() != null) {
             throw new RuntimeException("Cannot provide an ID when creating a new librarian.");
         }
 
@@ -65,8 +65,11 @@ public class LibrarianService extends EmailService {
     }
 
     public void delete(Long librarianID) {
-        Librarian librarian = findByID(librarianID);
-        librarianRepository.delete(librarian);
+        if (!librarianRepository.existsById(librarianID)) {
+            throw new EntityNotFoundException("Librarian with ID " + librarianID + " not found.");
+        }
+
+        librarianRepository.deleteById(librarianID);
     }
 
     public Librarian checkEmail(Long librarianID) {
@@ -116,14 +119,14 @@ public class LibrarianService extends EmailService {
         return librarian;
     }
 
-    public Librarian login(String emailAddress, String password) throws BadRequestException {
+    public Librarian login(String emailAddress, String password) {
         Librarian librarian = librarianRepository.findByEmail(emailAddress)
                 .orElseThrow(() -> new EntityNotFoundException("Librarian with email address " + emailAddress + " not found."));
 
         String encryptedPassword = DigestUtils.md5DigestAsHex(password.getBytes(StandardCharsets.UTF_8));
 
         if (!librarian.getEmail().equals(emailAddress) || !librarian.getPassword().equals(encryptedPassword)) {
-            throw new RuntimeException("Login unsuccessful. Invalid email address or password.");
+            throw new InputMismatchException("Login unsuccessful. Invalid email address or password.");
         }
 
         librarianRepository.save(librarian);

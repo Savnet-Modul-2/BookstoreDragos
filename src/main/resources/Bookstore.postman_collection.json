@@ -294,7 +294,7 @@
 						"method": "POST",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:8080/api/users/verification?userID=1&code=931584",
+							"raw": "http://localhost:8080/api/users/verification?userID=1&code=934682",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -312,7 +312,7 @@
 								},
 								{
 									"key": "code",
-									"value": "931584"
+									"value": "934682"
 								}
 							]
 						}
@@ -401,7 +401,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"Librarian 1\",\r\n    \"emailAddress\": \"Dragos_Dumitras@yahoo.com\",\r\n    \"password\": \"librarian1\"\r\n}\r\n",
+							"raw": "{\r\n    \"name\": \"Librarian 1\",\r\n    \"emailAddress\": \"Dragos_Dumitras@yahoo.com\",\r\n    \"password\": \"librarian1\",\r\n    \"libraryDTO\": {}\r\n}\r\n",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -562,7 +562,7 @@
 								},
 								{
 									"key": "code",
-									"value": "972080",
+									"value": "921081",
 									"type": "text"
 								}
 							]
@@ -948,7 +948,7 @@
 							"urlencoded": []
 						},
 						"url": {
-							"raw": "http://localhost:8080/api/books/paginated?pageNumber=0&numberOfElements=2",
+							"raw": "http://localhost:8080/api/books/paginated?pageNumber=0&pageSize=2",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -965,7 +965,7 @@
 									"value": "0"
 								},
 								{
-									"key": "numberOfElements",
+									"key": "pageSize",
 									"value": "2"
 								}
 							]
@@ -986,7 +986,7 @@
 							"urlencoded": []
 						},
 						"url": {
-							"raw": "http://localhost:8080/api/books/paginated?pageNumber=&numberOfElements=",
+							"raw": "http://localhost:8080/api/books/paginated?pageNumber=&pageSize=",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -1003,7 +1003,7 @@
 									"value": ""
 								},
 								{
-									"key": "numberOfElements",
+									"key": "pageSize",
 									"value": ""
 								}
 							]
@@ -1201,7 +1201,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:8080/api/exemplars?pageNumber=0&numberOfElements=10",
+							"raw": "http://localhost:8080/api/exemplars?bookID=1&pageNumber=0&pageSize=5",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -1213,12 +1213,16 @@
 							],
 							"query": [
 								{
+									"key": "bookID",
+									"value": "1"
+								},
+								{
 									"key": "pageNumber",
 									"value": "0"
 								},
 								{
-									"key": "numberOfElements",
-									"value": "10"
+									"key": "pageSize",
+									"value": "5"
 								}
 							]
 						}
@@ -1240,6 +1244,80 @@
 							"path": [
 								"api",
 								"exemplars",
+								"1"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Reservations",
+			"item": [
+				{
+					"name": "Search_Books",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/reservations?title=Book 1&author=Author 1&pageNumber=0&pageSize=5",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"reservations"
+							],
+							"query": [
+								{
+									"key": "title",
+									"value": "Book 1"
+								},
+								{
+									"key": "author",
+									"value": "Author 1"
+								},
+								{
+									"key": "pageNumber",
+									"value": "0"
+								},
+								{
+									"key": "pageSize",
+									"value": "5"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Reserve_Book",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"startDate\": \"2025-10-15\",\r\n    \"endDate\": \"2025-11-15\"\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/reservations/1/1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"reservations",
+								"1",
 								"1"
 							]
 						}

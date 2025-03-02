@@ -29,6 +29,10 @@ public class BookService {
     }
 
     public Book create(Book book) {
+        if (book.getID() != null) {
+            throw new RuntimeException("Cannot provide an ID when creating a new book.");
+        }
+
         return bookRepository.save(book);
     }
 
@@ -41,9 +45,9 @@ public class BookService {
         return bookRepository.findAll();
     }
 
-    public Page<Book> listPaginated(Integer pageNumber, Integer numberOfElements) {
-        if (pageNumber != null && numberOfElements != null) {
-            Pageable pageable = PageRequest.of(pageNumber, numberOfElements);
+    public Page<Book> listPaginated(Integer pageNumber, Integer pageSize) {
+        if (pageNumber != null && pageSize != null) {
+            Pageable pageable = PageRequest.of(pageNumber, pageSize);
             return bookRepository.findAll(pageable);
         }
 
@@ -53,7 +57,7 @@ public class BookService {
     public Book update(Long bookID, BookDTO bookUpdate) {
         Book bookToUpdate = findByID(bookID);
 
-        bookToUpdate.setIsbn(bookUpdate.getIsbn());
+        bookToUpdate.setISBN(bookUpdate.getISBN());
         bookToUpdate.setTitle(bookUpdate.getTitle());
         bookToUpdate.setAuthor(bookUpdate.getAuthor());
         bookToUpdate.setReleaseDate(bookUpdate.getReleaseDate());

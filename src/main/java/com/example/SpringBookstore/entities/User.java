@@ -5,6 +5,8 @@ import jakarta.persistence.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity(name = "user")
 @Table(name = "users", schema = "public")
@@ -48,11 +50,14 @@ public class User {
     @Column(name = "VERIFICATION_CODE_GENERATION_TIME")
     private LocalDateTime verificationCodeGenerationTime;
 
-    public Long getId() {
+    @OneToMany(mappedBy = "user")
+    private List<Reservation> reservations = new ArrayList<>();
+
+    public Long getID() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setID(Long id) {
         this.id = id;
     }
 
@@ -142,5 +147,27 @@ public class User {
 
     public void setVerificationCodeGenerationTime(LocalDateTime verificationCodeGenerationTime) {
         this.verificationCodeGenerationTime = verificationCodeGenerationTime;
+    }
+
+    public List<Reservation> getReservations() {
+        return reservations;
+    }
+
+    public void setReservations(List<Reservation> reservations) {
+        this.reservations = reservations;
+    }
+
+    public void addReservation(Reservation reservation) {
+        if (!reservations.contains(reservation)) {
+            reservations.add(reservation);
+            reservation.setUser(this);
+        }
+    }
+
+    public void removeReservation(Reservation reservation) {
+        if (reservations.contains(reservation)) {
+            reservations.remove(reservation);
+            reservation.setUser(null);
+        }
     }
 }
