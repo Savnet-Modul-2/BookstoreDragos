@@ -1,14 +1,8 @@
 package com.example.SpringBookstore.service;
 
 import com.example.SpringBookstore.ReservationStatus;
-import com.example.SpringBookstore.entities.Book;
-import com.example.SpringBookstore.entities.Exemplary;
-import com.example.SpringBookstore.entities.Reservation;
-import com.example.SpringBookstore.entities.User;
-import com.example.SpringBookstore.repositories.BookRepository;
-import com.example.SpringBookstore.repositories.ExemplaryRepository;
-import com.example.SpringBookstore.repositories.ReservationRepository;
-import com.example.SpringBookstore.repositories.UserRepository;
+import com.example.SpringBookstore.entities.*;
+import com.example.SpringBookstore.repositories.*;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -23,13 +17,15 @@ import java.util.InputMismatchException;
 public class ReservationService {
     private final ReservationRepository reservationRepository;
     private final UserRepository userRepository;
+    private final LibrarianRepository librarianRepository;
     private final BookRepository bookRepository;
     private final ExemplaryRepository exemplaryRepository;
 
     @Autowired
-    public ReservationService(ReservationRepository reservationRepository, UserRepository userRepository, BookRepository bookRepository, ExemplaryRepository exemplaryRepository) {
+    public ReservationService(ReservationRepository reservationRepository, UserRepository userRepository, LibrarianRepository librarianRepository, BookRepository bookRepository, ExemplaryRepository exemplaryRepository) {
         this.reservationRepository = reservationRepository;
         this.userRepository = userRepository;
+        this.librarianRepository = librarianRepository;
         this.bookRepository = bookRepository;
         this.exemplaryRepository = exemplaryRepository;
     }
@@ -44,6 +40,9 @@ public class ReservationService {
     }
 
     public Reservation reserveBook(Long userID, Long bookID, LocalDate startDate, LocalDate endDate) {
+        Exemplary exemplary = exemplaryRepository.reserveExemplary(bookID, startDate, endDate)
+                .orElseThrow(() -> new EntityNotFoundException("No exemplars of book with ID " + bookID + " available."));
+
         if (startDate.isAfter(endDate) || startDate.isBefore(LocalDate.now()) || endDate.isBefore(LocalDate.now())) {
             throw new InputMismatchException("Reservation unsuccessful. Invalid reservation dates.");
         }
@@ -53,9 +52,6 @@ public class ReservationService {
 
         bookRepository.findById(bookID)
                 .orElseThrow(() -> new EntityNotFoundException("Book with ID " + bookID + " not found."));
-
-        Exemplary exemplary = exemplaryRepository.reserveExemplary(bookID, startDate, endDate)
-                .orElseThrow(() -> new EntityNotFoundException("No exemplars of book with ID " + bookID + " available."));
 
         Reservation reservation = new Reservation();
 
@@ -71,5 +67,23 @@ public class ReservationService {
         userRepository.save(user);
 
         return reservation;
+    }
+
+    public Reservation updateStatus(Long librarianID, Long reservationID) {
+        librarianRepository.findById(librarianID)
+                .orElseThrow(() -> new EntityNotFoundException("Librarian with ID " + librarianID + " not found."));
+
+        Reservation reservation = reservationRepository.findById(reservationID)
+                .orElseThrow(() -> new EntityNotFoundException("Reservation with ID " + reservationID + " not found."));
+
+        if (reservation.getExemplary().getBook().getLibrary().getLibrarian().getID().equals(librarianID)) {
+            if (reservation.getStatus().isNextStatePossible(ReservationStatus.IN_PROGRESS)) {
+                reservation.setStatus(ReservationStatus.IN_PROGRESS);
+            } else if (reservation.getStatus().isNextStatePossible(ReservationStatus.FINISHED)) {
+                reservation.setStatus(ReservationStatus.FINISHED);
+            }
+        }
+
+        return reservationRepository.save(reservation);
     }
 }

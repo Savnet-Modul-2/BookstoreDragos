@@ -35,4 +35,10 @@ public class ReservationController {
         Reservation reservation = reservationService.reserveBook(userID, bookID, reservationDTO.getStartDate(), reservationDTO.getEndDate());
         return ResponseEntity.ok(ReservationMapper.reservation2ReservationDTO(reservation));
     }
+
+    @PutMapping(path = "/{librarianID}/{reservationID}")
+    public ResponseEntity<?> updateStatus(@PathVariable(name = "librarianID") Long librarianID, @PathVariable(name = "reservationID") Long reservationID) {
+        Reservation updatedReservation = reservationService.updateStatus(librarianID, reservationID);
+        return ResponseEntity.ok(ReservationMapper.reservation2ReservationDTO(updatedReservation));
+    }
 }

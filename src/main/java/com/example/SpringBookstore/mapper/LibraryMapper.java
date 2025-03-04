@@ -29,12 +29,6 @@ public class LibraryMapper {
         libraryDTO.setAddress(library.getAddress());
         libraryDTO.setPhoneNumber(library.getPhoneNumber());
 
-        if (library.getBooks() != null) {
-            libraryDTO.setBookDTOS(library.getBooks().stream()
-                    .map(BookMapper::book2BookDTO)
-                    .toList());
-        }
-
         return libraryDTO;
     }
 }
