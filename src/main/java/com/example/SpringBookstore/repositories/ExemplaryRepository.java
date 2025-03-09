@@ -15,12 +15,12 @@ import java.util.Optional;
 public interface ExemplaryRepository extends JpaRepository<Exemplary, Long> {
     Page<Exemplary> findByBookId(Long bookID, Pageable pageable);
 
-    //Alternative to @Query
+    //Alternative to using the @Query annotation;
     /*
     Optional<Exemplary> findFirstByBookId(Long bookID);
     */
 
-    //Alternative to Native Query - unfortunately, it returns a list and there is no way to set a limit for it;
+    //Alternative to Native Query - unfortunately, it returns a list and there is no way to set a limit for it in HQL;
     /*
     @Query(value = """
         SELECT aExemplary FROM exemplary aExemplary
@@ -30,18 +30,18 @@ public interface ExemplaryRepository extends JpaRepository<Exemplary, Long> {
         (aReservation IS NULL OR aReservation.reservationStatus = com.example.SpringBookstore.ReservationStatus.FINISHED)
         ORDER BY aExemplary.id ASC
         """)
-    Optional<Exemplary> reserveExemplary(@Param("bookID") Long bookID);
+    List<Exemplary> reserveExemplary(@Param("bookID") Long bookID);
     */
 
     //Native Query - it causes more trouble than it's worth in case you also want to specify a cascade type for the Exemplary field inside the Reservation class;
     @Query(value = """
-            SELECT aExemplary.* FROM exemplars aExemplary
-            LEFT JOIN reservations aReservation
-            ON aExemplary.ID = aReservation.EXEMPLARY_ID
-            WHERE aExemplary.BOOK_ID = :bookID
-            AND
-            (aReservation.ID IS NULL OR aReservation.STATUS = 'FINISHED' OR :startDate > aReservation.END_DATE OR :endDate < aReservation.START_DATE)
-            ORDER BY aExemplary.id ASC
+            SELECT e.* FROM exemplars e
+            WHERE e.BOOK_ID = :bookID
+            AND e.ID NOT IN (
+                SELECT r.EXEMPLARY_ID FROM reservations r
+                WHERE r.EXEMPLARY_ID = e.ID
+                AND NOT (:startDate > r.END_DATE OR :endDate < r.START_DATE)
+                )
             LIMIT 1
             """, nativeQuery = true)
     Optional<Exemplary> reserveExemplary(@Param("bookID") Long bookID, @Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);

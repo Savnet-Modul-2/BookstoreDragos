@@ -1,4 +1,4 @@
-package com.example.SpringBookstore.exceptionHandler;
+package com.example.SpringBookstore.exceptionHandlers;
 
 import java.time.LocalDateTime;
 

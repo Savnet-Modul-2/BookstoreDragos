@@ -1,9 +1,14 @@
 package com.example.SpringBookstore.entitiesDTO;
 
 import com.example.SpringBookstore.ReservationStatus;
+import com.example.SpringBookstore.entitiesDTO.validation.AdvancedInformation;
+import com.example.SpringBookstore.entitiesDTO.validation.ValidDateInTheFuture;
+import com.example.SpringBookstore.entitiesDTO.validation.ValidDateOrder;
 
 import java.time.LocalDate;
 
+@ValidDateOrder(groups = AdvancedInformation.class)
+@ValidDateInTheFuture(groups = AdvancedInformation.class)
 public class ReservationDTO {
     private Long id;
     private LocalDate startDate;

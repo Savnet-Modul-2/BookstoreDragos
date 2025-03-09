@@ -1,4 +1,4 @@
-package com.example.SpringBookstore.mapper;
+package com.example.SpringBookstore.mappers;
 
 import com.example.SpringBookstore.entities.User;
 import com.example.SpringBookstore.entitiesDTO.UserDTO;
