@@ -1,4 +1,4 @@
-package com.example.SpringBookstore.service;
+package com.example.SpringBookstore.services;
 
 import com.example.SpringBookstore.entities.Library;
 import com.example.SpringBookstore.repositories.LibraryRepository;

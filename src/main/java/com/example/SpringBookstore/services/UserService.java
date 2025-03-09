@@ -1,4 +1,4 @@
-package com.example.SpringBookstore.service;
+package com.example.SpringBookstore.services;
 
 import com.example.SpringBookstore.entities.User;
 import com.example.SpringBookstore.entitiesDTO.UserDTO;

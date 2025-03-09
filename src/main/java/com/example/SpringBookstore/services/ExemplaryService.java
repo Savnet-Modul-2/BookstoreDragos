@@ -1,4 +1,4 @@
-package com.example.SpringBookstore.service;
+package com.example.SpringBookstore.services;
 
 import com.example.SpringBookstore.entities.Book;
 import com.example.SpringBookstore.entities.Exemplary;
@@ -37,12 +37,8 @@ public class ExemplaryService {
     }
 
     public Page<Exemplary> listPaginated(Long bookID, Integer pageNumber, Integer pageSize) {
-        if (pageNumber != null && pageSize != null) {
-            Pageable pageable = PageRequest.of(pageNumber, pageSize);
-            return exemplaryRepository.findByBookId(bookID, pageable);
-        }
-
-        return exemplaryRepository.findByBookId(bookID, Pageable.unpaged());
+        Pageable pageable = (pageNumber != null && pageSize != null) ? PageRequest.of(pageNumber, pageSize) : Pageable.unpaged();
+        return exemplaryRepository.findByBookId(bookID, pageable);
     }
 
     public void delete(Long exemplaryID) {

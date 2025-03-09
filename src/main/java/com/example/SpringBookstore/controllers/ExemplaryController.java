@@ -1,9 +1,9 @@
-package com.example.SpringBookstore.controller;
+package com.example.SpringBookstore.controllers;
 
 import com.example.SpringBookstore.entities.Exemplary;
 import com.example.SpringBookstore.entitiesDTO.ExemplarsCreateDTO;
-import com.example.SpringBookstore.mapper.ExemplaryMapper;
-import com.example.SpringBookstore.service.ExemplaryService;
+import com.example.SpringBookstore.mappers.ExemplaryMapper;
+import com.example.SpringBookstore.services.ExemplaryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
