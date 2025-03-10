@@ -40,7 +40,7 @@ public interface ExemplaryRepository extends JpaRepository<Exemplary, Long> {
             AND e.ID NOT IN (
                 SELECT r.EXEMPLARY_ID FROM reservations r
                 WHERE r.EXEMPLARY_ID = e.ID
-                AND NOT (:startDate > r.END_DATE OR :endDate < r.START_DATE)
+                AND NOT (:startDate > r.END_DATE OR :endDate < r.START_DATE OR r.STATUS = 'FINISHED')
                 )
             LIMIT 1
             """, nativeQuery = true)
