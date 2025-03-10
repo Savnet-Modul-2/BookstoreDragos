@@ -1,4 +1,4 @@
-package com.example.SpringBookstore.service;
+package com.example.SpringBookstore.services;
 
 import com.example.SpringBookstore.ReservationStatus;
 import com.example.SpringBookstore.entities.*;
@@ -8,50 +8,65 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.InputMismatchException;
 
 @Service
 public class ReservationService {
     private final ReservationRepository reservationRepository;
     private final UserRepository userRepository;
     private final LibrarianRepository librarianRepository;
+    private final LibraryRepository libraryRepository;
     private final BookRepository bookRepository;
     private final ExemplaryRepository exemplaryRepository;
 
     @Autowired
-    public ReservationService(ReservationRepository reservationRepository, UserRepository userRepository, LibrarianRepository librarianRepository, BookRepository bookRepository, ExemplaryRepository exemplaryRepository) {
+    public ReservationService(ReservationRepository reservationRepository, UserRepository userRepository, LibrarianRepository librarianRepository, LibraryRepository libraryRepository, BookRepository bookRepository, ExemplaryRepository exemplaryRepository) {
         this.reservationRepository = reservationRepository;
         this.userRepository = userRepository;
         this.librarianRepository = librarianRepository;
+        this.libraryRepository = libraryRepository;
         this.bookRepository = bookRepository;
         this.exemplaryRepository = exemplaryRepository;
     }
 
     public Page<Book> searchBooks(String title, String author, Integer pageNumber, Integer pageSize) {
-        if (pageNumber != null && pageSize != null) {
-            Pageable pageable = PageRequest.of(pageNumber, pageSize);
-            return bookRepository.searchBooks(title, author, pageable);
+        Pageable pageable = (pageNumber != null && pageSize != null) ? PageRequest.of(pageNumber, pageSize) : Pageable.unpaged();
+        return bookRepository.searchBooks(title, author, pageable);
+    }
+
+    public Page<Reservation> findReservationsFromLibraryForPeriod(Long libraryID, LocalDate startDate, LocalDate endDate, Integer pageNumber, Integer pageSize, String sortDirection, String sortCriteria) {
+        libraryRepository.findById(libraryID)
+                .orElseThrow(() -> new EntityNotFoundException("Library with ID" + libraryID + " not found."));
+
+        Sort sort = Sort.by(Sort.Direction.fromString(sortDirection), sortCriteria);
+        Pageable pageable = (pageNumber != null && pageSize != null) ? PageRequest.of(pageNumber, pageSize, sort) : Pageable.unpaged();
+
+        return libraryRepository.findReservationByLibraryIdForPeriod(libraryID, startDate, endDate, pageable);
+    }
+
+    public Page<Reservation> findReservationsFromUserByStatus(Long userID, ReservationStatus reservationStatus, Integer pageNumber, Integer pageSize, String sortDirection, String sortCriteria) {
+        userRepository.findById(userID)
+                .orElseThrow(() -> new EntityNotFoundException("User with ID " + userID + " not found."));
+
+        Sort sort = Sort.by(Sort.Direction.fromString(sortDirection), sortCriteria);
+        Pageable pageable = (pageNumber != null && pageSize != null) ? PageRequest.of(pageNumber, pageSize, sort) : Pageable.unpaged();
+
+        if (reservationStatus != null) {
+            return userRepository.findReservationFromUserByStatus(userID, reservationStatus.name(), pageable);
         }
 
-        return bookRepository.searchBooks(title, author, Pageable.unpaged());
+        return userRepository.findReservationFromUserByStatus(userID, null, pageable);
     }
 
     public Reservation reserveBook(Long userID, Long bookID, LocalDate startDate, LocalDate endDate) {
         Exemplary exemplary = exemplaryRepository.reserveExemplary(bookID, startDate, endDate)
                 .orElseThrow(() -> new EntityNotFoundException("No exemplars of book with ID " + bookID + " available."));
 
-        if (startDate.isAfter(endDate) || startDate.isBefore(LocalDate.now()) || endDate.isBefore(LocalDate.now())) {
-            throw new InputMismatchException("Reservation unsuccessful. Invalid reservation dates.");
-        }
-
         User user = userRepository.findById(userID)
                 .orElseThrow(() -> new EntityNotFoundException("User with ID " + userID + " not found."));
-
-        bookRepository.findById(bookID)
-                .orElseThrow(() -> new EntityNotFoundException("Book with ID " + bookID + " not found."));
 
         Reservation reservation = new Reservation();
 

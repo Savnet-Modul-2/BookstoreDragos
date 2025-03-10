@@ -1,9 +1,9 @@
-package com.example.SpringBookstore.service;
+package com.example.SpringBookstore.services;
 
 import com.example.SpringBookstore.entities.Book;
 import com.example.SpringBookstore.entities.Library;
 import com.example.SpringBookstore.entitiesDTO.BookDTO;
-import com.example.SpringBookstore.mapper.LibraryMapper;
+import com.example.SpringBookstore.mappers.LibraryMapper;
 import com.example.SpringBookstore.repositories.BookRepository;
 import com.example.SpringBookstore.repositories.LibraryRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -46,12 +46,8 @@ public class BookService {
     }
 
     public Page<Book> listPaginated(Integer pageNumber, Integer pageSize) {
-        if (pageNumber != null && pageSize != null) {
-            Pageable pageable = PageRequest.of(pageNumber, pageSize);
-            return bookRepository.findAll(pageable);
-        }
-
-        return bookRepository.findAll(Pageable.unpaged());
+        Pageable pageable = (pageNumber != null && pageSize != null) ? PageRequest.of(pageNumber, pageSize) : Pageable.unpaged();
+        return bookRepository.findAll(pageable);
     }
 
     public Book update(Long bookID, BookDTO bookUpdate) {
