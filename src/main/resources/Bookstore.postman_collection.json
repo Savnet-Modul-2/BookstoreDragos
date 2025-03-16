@@ -16,7 +16,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"firstName\": \"Dragos-Andrei\",\r\n    \"lastName\": \"Dumitras\",\r\n    \"gender\": \"MALE\",\r\n    \"country\": \"Timisoara\",\r\n    \"birthDate\": \"1998-10-15\",\r\n    \"phoneNumber\": \"5550000\",\r\n    \"email\": \"Dragos_Dumitras@yahoo.com\",\r\n    \"password\": \"password1\"\r\n}\r\n",
+							"raw": "{\r\n    \"firstName\": \"Dragoș-Andrei\",\r\n    \"lastName\": \"Dumitraș\",\r\n    \"gender\": \"MALE\",\r\n    \"country\": \"Timisoara\",\r\n    \"birthDate\": \"1998-10-15\",\r\n    \"phoneNumber\": \"5550000\",\r\n    \"email\": \"Dragos_Dumitras@yahoo.com\",\r\n    \"password\": \"password1\"\r\n}\r\n",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -294,7 +294,7 @@
 						"method": "POST",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:8080/api/users/verification?userID=1&code=934682",
+							"raw": "http://localhost:8080/api/users/verification?userID=1&code=",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -312,7 +312,7 @@
 								},
 								{
 									"key": "code",
-									"value": "934682"
+									"value": ""
 								}
 							]
 						}
@@ -548,6 +548,42 @@
 					"response": []
 				},
 				{
+					"name": "Send_Email_To_Librarian_1",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "subject",
+									"value": "Bookstore Email",
+									"type": "text"
+								},
+								{
+									"key": "text",
+									"value": "Hello! This is an email from the Bookstore.",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/librarians/1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"librarians",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "Verify_Account_For_Librarian_1",
 					"request": {
 						"method": "POST",
@@ -562,7 +598,7 @@
 								},
 								{
 									"key": "code",
-									"value": "669355",
+									"value": "",
 									"type": "text"
 								}
 							]
@@ -665,7 +701,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"Library 1\",\r\n    \"address\": \"Address 1\",\r\n    \"phoneNumber\": 555201\r\n}\r\n",
+							"raw": "{\r\n    \"name\": \"Library 1\",\r\n    \"address\": \"Address 1\",\r\n    \"phoneNumber\": 5552001\r\n}\r\n",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -694,7 +730,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"Library 2\",\r\n    \"address\": \"Address 2\",\r\n    \"phoneNumber\": 555202\r\n}\r\n",
+							"raw": "{\r\n    \"name\": \"Library 2\",\r\n    \"address\": \"Address 2\",\r\n    \"phoneNumber\": 5552002\r\n}\r\n",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -723,7 +759,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"Library 3\",\r\n    \"address\": \"Address 3\",\r\n    \"phoneNumber\": 555203\r\n}\r\n",
+							"raw": "{\r\n    \"name\": \"Library 3\",\r\n    \"address\": \"Address 3\",\r\n    \"phoneNumber\": 5552003\r\n}\r\n",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -790,7 +826,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"isbn\": 1,\r\n    \"title\": \"Book 1\",\r\n    \"author\": \"Author 1\",\r\n    \"releaseDate\": 2001,\r\n    \"numberOfPages\": 100,\r\n    \"category\": \"ACTION\",\r\n    \"language\": \"English\",\r\n    \"library\": null\r\n}\r\n",
+							"raw": "{\r\n    \"isbn\": 1,\r\n    \"title\": \"Book 1\",\r\n    \"author\": \"Author 1\",\r\n    \"releaseDate\": \"2001-01-01\",\r\n    \"numberOfPages\": 100,\r\n    \"category\": \"ACTION\",\r\n    \"language\": \"English\",\r\n    \"library\": null\r\n}\r\n",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -819,7 +855,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"isbn\": 2,\r\n    \"title\": \"Book 2\",\r\n    \"author\": \"Author 2\",\r\n    \"releaseDate\": 2002,\r\n    \"numberOfPages\": 200,\r\n    \"category\": \"ADVENTURE\",\r\n    \"language\": \"English\",\r\n    \"library\": null\r\n}\r\n",
+							"raw": "{\r\n    \"isbn\": 2,\r\n    \"title\": \"Book 2\",\r\n    \"author\": \"Author 2\",\r\n    \"releaseDate\": \"2002-02-02\",\r\n    \"numberOfPages\": 200,\r\n    \"category\": \"ADVENTURE\",\r\n    \"language\": \"English\",\r\n    \"library\": null\r\n}\r\n",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -848,7 +884,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"isbn\": 3,\r\n    \"title\": \"Book 3\",\r\n    \"author\": \"Author 3\",\r\n    \"releaseDate\": 2003,\r\n    \"numberOfPages\": 300,\r\n    \"category\": \"THRILLER\",\r\n    \"language\": \"English\",\r\n    \"library\": null\r\n}\r\n",
+							"raw": "{\r\n    \"isbn\": 3,\r\n    \"title\": \"Book 3\",\r\n    \"author\": \"Author 3\",\r\n    \"releaseDate\": \"2003-03-03\",\r\n    \"numberOfPages\": 300,\r\n    \"category\": \"THRILLER\",\r\n    \"language\": \"English\",\r\n    \"library\": null\r\n}\r\n",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1087,7 +1123,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:8080/api/books/1/1",
+							"raw": "http://localhost:8080/api/books/4/1",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -1096,7 +1132,7 @@
 							"path": [
 								"api",
 								"books",
-								"1",
+								"4",
 								"1"
 							]
 						}
@@ -1115,7 +1151,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"bookID\": 1,\r\n    \"publisher\": \"Publisher 1\",\r\n    \"maximumBookingTime\": 10,\r\n    \"numberOfExemplars\": 10\r\n}\r\n",
+							"raw": "{\r\n    \"bookID\": 1,\r\n    \"publisher\": \"Publisher 1\",\r\n    \"maximumBookingTime\": 10,\r\n    \"numberOfExemplars\": 1\r\n}\r\n",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1300,7 +1336,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"startDate\": \"2025-10-04\",\r\n    \"endDate\": \"2025-10-06\"\r\n}\r\n",
+							"raw": "{\r\n    \"startDate\": \"2025-10-01\",\r\n    \"endDate\": \"2025-10-03\"\r\n}\r\n",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1348,11 +1384,23 @@
 				},
 				{
 					"name": "Find_Reservations_From_Library_For_Period",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
 					"request": {
 						"method": "GET",
 						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"startDate\": \"2025-10-01\",\r\n    \"endDate\": \"2025-10-10\",\r\n    \"reservationStatusFilters\": [\r\n        \"PENDING\",\r\n        \"IN_PROGRESS\",\r\n        \"FINISHED\"\r\n    ]\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
 						"url": {
-							"raw": "http://localhost:8080/api/reservations/library/1?startDate=2025-10-01&endDate=2025-10-10&pageNumber=0&pageSize=6&sortDirection=ASC&sortCriteria=START_DATE",
+							"raw": "http://localhost:8080/api/reservations/library/1?sortDirection=ASC&sortCriteria=START_DATE&pageNumber=0&pageSize=5",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -1366,12 +1414,12 @@
 							],
 							"query": [
 								{
-									"key": "startDate",
-									"value": "2025-10-01"
+									"key": "sortDirection",
+									"value": "ASC"
 								},
 								{
-									"key": "endDate",
-									"value": "2025-10-10"
+									"key": "sortCriteria",
+									"value": "START_DATE"
 								},
 								{
 									"key": "pageNumber",
@@ -1379,15 +1427,7 @@
 								},
 								{
 									"key": "pageSize",
-									"value": "6"
-								},
-								{
-									"key": "sortDirection",
-									"value": "ASC"
-								},
-								{
-									"key": "sortCriteria",
-									"value": "START_DATE"
+									"value": "5"
 								}
 							]
 						}
@@ -1396,11 +1436,23 @@
 				},
 				{
 					"name": "Find_Reservations_From_User_By_Status",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
 					"request": {
 						"method": "GET",
 						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"startDate\": \"2025-10-01\",\r\n    \"endDate\": \"2025-10-10\",\r\n    \"reservationStatusFilters\": [\r\n        \"PENDING\",\r\n        \"IN_PROGRESS\",\r\n        \"FINISHED\"\r\n    ]\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
 						"url": {
-							"raw": "http://localhost:8080/api/reservations/user/1?reservationStatus=PENDING&pageNumber=0&pageSize=3&sortDirection=ASC&sortCriteria=START_DATE",
+							"raw": "http://localhost:8080/api/reservations/user/1?sortDirection=ASC&sortCriteria=START_DATE&pageNumber=0&pageSize=3",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -1414,8 +1466,12 @@
 							],
 							"query": [
 								{
-									"key": "reservationStatus",
-									"value": "PENDING"
+									"key": "sortDirection",
+									"value": "ASC"
+								},
+								{
+									"key": "sortCriteria",
+									"value": "START_DATE"
 								},
 								{
 									"key": "pageNumber",
@@ -1424,14 +1480,6 @@
 								{
 									"key": "pageSize",
 									"value": "3"
-								},
-								{
-									"key": "sortDirection",
-									"value": "ASC"
-								},
-								{
-									"key": "sortCriteria",
-									"value": "START_DATE"
 								}
 							]
 						}
