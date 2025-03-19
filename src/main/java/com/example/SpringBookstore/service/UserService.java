@@ -2,6 +2,7 @@ package com.example.SpringBookstore.service;
 
 import com.example.SpringBookstore.entity.User;
 import com.example.SpringBookstore.entityDTO.UserDTO;
+import com.example.SpringBookstore.exceptionHandler.exception.BadRequestException;
 import com.example.SpringBookstore.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -94,11 +95,16 @@ public class UserService {
     }
 
     public void resendVerificationCode(User user) {
-        if (user.getVerificationCodeGenerationTime() == null) throw new RuntimeException("No verification code previously generated for user.");
+        if (user.getVerificationCodeGenerationTime() == null) {
+            throw new BadRequestException("No verification code previously generated for user.");
+        }
 
         Duration elapsedTime = Duration.between(user.getVerificationCodeGenerationTime(), LocalDateTime.now());
 
-        if (elapsedTime.toMinutes() < emailService.getVerificationTime() - 1) throw new RuntimeException("Verification code still valid.");
+        if (elapsedTime.toMinutes() < emailService.getVerificationTime() - 1) {
+            emailService.sendEmail(user.getEmail(), "User Verification Email", "Your verification code is " + user.getVerificationCode() + ".\nThis verification code will expire in " + (emailService.getVerificationTime() - elapsedTime.toMinutes()) + " minute(s).");
+            return;
+        }
 
         sendVerificationCode(user);
     }
@@ -114,9 +120,9 @@ public class UserService {
 
             userRepository.save(user);
 
-            throw new RuntimeException("Verification code expired. Request a new verification code.");
+            throw new BadRequestException("Verification code expired. Request a new verification code.");
         } else if (!user.getVerificationCode().equals(code)) {
-            throw new RuntimeException("User account verification unsuccessful. Invalid code provided.");
+            throw new BadRequestException("User account verification unsuccessful. Invalid code provided.");
         }
 
         user.setVerifiedAccount(true);

@@ -4,6 +4,7 @@ import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
+import com.example.SpringBookstore.exceptionHandler.exception.BadRequestException;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatusCode;
@@ -32,6 +33,12 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     public ResponseEntity<?> entityNotFoundException(EntityNotFoundException entityNotFoundException) {
         ErrorDetail error = new ErrorDetail(NOT_FOUND.value(), "NOT FOUND", entityNotFoundException.getMessage());
         return new ResponseEntity<>(error, NOT_FOUND);
+    }
+
+    @ExceptionHandler(BadRequestException.class)
+    public ResponseEntity<?> badRequestException(BadRequestException badRequestException) {
+        ErrorDetail error = new ErrorDetail(BAD_REQUEST.value(), "BAD REQUEST", badRequestException.getMessage());
+        return new ResponseEntity<>(error, BAD_REQUEST);
     }
 
     @ExceptionHandler(InputMismatchException.class)
