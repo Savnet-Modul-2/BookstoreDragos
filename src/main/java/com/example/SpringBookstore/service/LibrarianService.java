@@ -2,6 +2,7 @@ package com.example.SpringBookstore.service;
 
 import com.example.SpringBookstore.entity.Librarian;
 import com.example.SpringBookstore.entity.Library;
+import com.example.SpringBookstore.exceptionHandler.exception.BadRequestException;
 import com.example.SpringBookstore.repository.LibrarianRepository;
 import com.example.SpringBookstore.repository.LibraryRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -99,20 +100,34 @@ public class LibrarianService {
         }
     }
 
+    public void resendVerificationCode(Librarian librarian) {
+        if (librarian.getVerificationCodeGenerationTime() == null) {
+            throw new BadRequestException("No verification code previously generated for librarian.");
+        }
+
+        Duration elapsedTime = Duration.between(librarian.getVerificationCodeGenerationTime(), LocalDateTime.now());
+
+        if (elapsedTime.toMinutes() < emailService.getVerificationTime() - 1) {
+            emailService.sendEmail(librarian.getEmail(), "Librarian Verification Email", "Your verification code is: " + librarian.getVerificationCode() + ".\nThis verification code will expire in " + (emailService.getVerificationTime() - elapsedTime.toMinutes()) + " minute(s).");
+            return;
+        }
+
+        sendVerificationCode(librarian);
+    }
+
     public Librarian checkVerificationCode(Long librarianID, String code) {
         Librarian librarian = findByID(librarianID);
 
-        LocalDateTime currentTime = LocalDateTime.now();
-        Duration elapsedTime = Duration.between(librarian.getVerificationCodeGenerationTime(), currentTime);
+        Duration elapsedTime = Duration.between(librarian.getVerificationCodeGenerationTime(), LocalDateTime.now());
 
-        if (elapsedTime.toMinutes() > 5) {
+        if (elapsedTime.toMinutes() > emailService.getVerificationTime()) {
             librarian.setVerificationCode(null);
 
             librarianRepository.save(librarian);
 
-            throw new RuntimeException("Verification code expired. Request a new verification code.");
+            throw new BadRequestException("Verification code expired. Request a new verification code.");
         } else if (!librarian.getVerificationCode().equals(code)) {
-            throw new RuntimeException("Librarian account verification unsuccessful. Invalid code provided.");
+            throw new BadRequestException("Librarian account verification unsuccessful. Invalid code provided.");
         }
 
         librarian.setVerifiedAccount(true);
