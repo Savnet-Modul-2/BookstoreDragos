@@ -69,7 +69,7 @@ public class UserService {
 
     public User checkEmail(Long userID) {
         User user = userRepository.findById(userID)
-                .orElseThrow(() -> new EntityNotFoundException("User with ID " + userID + "not found."));
+                .orElseThrow(() -> new EntityNotFoundException("User with ID " + userID + " not found."));
 
         if (user.getEmail() == null || user.getEmail().isEmpty()) {
             throw new IllegalArgumentException("User with ID " + user.getID() + " does not have an email address.");
@@ -93,13 +93,23 @@ public class UserService {
         }
     }
 
+    public void resendVerificationCode(User user) {
+        if (user.getVerificationCodeGenerationTime() == null) throw new RuntimeException("No verification code previously generated for user.");
+
+        Duration elapsedTime = Duration.between(user.getVerificationCodeGenerationTime(), LocalDateTime.now());
+
+        if (elapsedTime.toMinutes() < emailService.getVerificationTime() - 1) throw new RuntimeException("Verification code still valid.");
+
+        sendVerificationCode(user);
+    }
+
     public User checkVerificationCode(Long userID, String code) {
         User user = findByID(userID);
 
         LocalDateTime currentTime = LocalDateTime.now();
         Duration elapsedTime = Duration.between(user.getVerificationCodeGenerationTime(), currentTime);
 
-        if (elapsedTime.toMinutes() > 5) {
+        if (elapsedTime.toMinutes() > emailService.getVerificationTime()) {
             user.setVerificationCode(null);
 
             userRepository.save(user);

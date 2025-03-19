@@ -31,6 +31,10 @@ public class Reservation {
     @JoinColumn(name = "USER_ID")
     private User user;
 
+    @Version
+    @Column(name = "VERSION")
+    private Integer version;
+
     public Long getID() {
         return id;
     }

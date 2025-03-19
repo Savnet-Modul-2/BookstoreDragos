@@ -99,13 +99,22 @@ public class LibrarianService {
         }
     }
 
+    public void resendVerificationCode(Librarian librarian) {
+        if (librarian.getVerificationCodeGenerationTime() == null) throw new RuntimeException("No verification code previously generated for librarian.");
+
+        Duration elapsedTime = Duration.between(librarian.getVerificationCodeGenerationTime(), LocalDateTime.now());
+
+        if (elapsedTime.toMinutes() < emailService.getVerificationTime() - 1) throw new RuntimeException("Verification code still valid.");
+
+        sendVerificationCode(librarian);
+    }
+
     public Librarian checkVerificationCode(Long librarianID, String code) {
         Librarian librarian = findByID(librarianID);
 
-        LocalDateTime currentTime = LocalDateTime.now();
-        Duration elapsedTime = Duration.between(librarian.getVerificationCodeGenerationTime(), currentTime);
+        Duration elapsedTime = Duration.between(librarian.getVerificationCodeGenerationTime(), LocalDateTime.now());
 
-        if (elapsedTime.toMinutes() > 5) {
+        if (elapsedTime.toMinutes() > emailService.getVerificationTime()) {
             librarian.setVerificationCode(null);
 
             librarianRepository.save(librarian);

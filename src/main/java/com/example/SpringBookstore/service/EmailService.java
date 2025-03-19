@@ -16,9 +16,15 @@ public class EmailService {
     @Value("${spring.mail.username}")
     private String sender;
 
+    private final Integer verificationTime = 5;
+
     @Autowired
     public EmailService(JavaMailSender javaMailSender) {
         this.javaMailSender = javaMailSender;
+    }
+
+    public Integer getVerificationTime() {
+        return verificationTime;
     }
 
     @Async

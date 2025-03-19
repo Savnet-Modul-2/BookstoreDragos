@@ -1,5 +1,9 @@
 package com.example.SpringBookstore.exceptionHandler;
 
+import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
+
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatusCode;
@@ -16,11 +20,14 @@ import java.util.HashMap;
 import java.util.InputMismatchException;
 import java.util.Map;
 
-import static org.springframework.http.HttpStatus.NOT_FOUND;
-import static org.springframework.http.HttpStatus.BAD_REQUEST;
-
 @ControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<?> runtimeException(RuntimeException runtimeException) {
+        ErrorDetail error = new ErrorDetail(INTERNAL_SERVER_ERROR.value(), "INTERNAL SERVER ERROR", runtimeException.getMessage());
+        return new ResponseEntity<>(error, INTERNAL_SERVER_ERROR);
+    }
+
     @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity<?> entityNotFoundException(EntityNotFoundException entityNotFoundException) {
         ErrorDetail error = new ErrorDetail(NOT_FOUND.value(), "NOT FOUND", entityNotFoundException.getMessage());

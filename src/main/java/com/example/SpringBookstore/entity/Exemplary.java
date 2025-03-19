@@ -2,6 +2,7 @@ package com.example.SpringBookstore.entity;
 
 import jakarta.persistence.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity(name = "exemplary")
@@ -24,6 +25,13 @@ public class Exemplary {
 
     @OneToMany(mappedBy = "exemplary")
     private List<Reservation> reservations;
+
+    @Version
+    @Column(name = "VERSION")
+    private Integer version;
+
+    @Column(name = "UPDATE_TIME")
+    private LocalDateTime updateTime;
 
     public Long getID() {
         return id;
@@ -63,6 +71,14 @@ public class Exemplary {
 
     public void setReservations(List<Reservation> reservations) {
         this.reservations = reservations;
+    }
+
+    public LocalDateTime getUpdateTime() {
+        return updateTime;
+    }
+
+    public void setUpdateTime(LocalDateTime updateTime) {
+        this.updateTime = updateTime;
     }
 
     public void addReservation(Reservation reservation) {

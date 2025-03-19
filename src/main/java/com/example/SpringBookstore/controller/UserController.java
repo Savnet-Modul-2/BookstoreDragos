@@ -68,11 +68,20 @@ public class UserController {
         return ResponseEntity.noContent().build();
     }
 
-    @PostMapping(path = "/verification/{userID}")
+    @PostMapping(path = "/send-verification/{userID}")
     public ResponseEntity<?> sendVerificationEmail(@PathVariable(name = "userID") Long userID) {
         User user = userService.checkEmail(userID);
 
         userService.sendVerificationCode(user);
+
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping(path = "/resend-verification/{userID}")
+    public ResponseEntity<?> resendVerificationEmail(@PathVariable(name = "userID") Long userID) {
+        User user = userService.checkEmail(userID);
+
+        userService.resendVerificationCode(user);
 
         return ResponseEntity.noContent().build();
     }

@@ -62,11 +62,20 @@ public class LibrarianController {
         return ResponseEntity.noContent().build();
     }
 
-    @PostMapping(path = "/verification/{librarianID}")
+    @PostMapping(path = "/send-verification/{librarianID}")
     public ResponseEntity<?> sendVerificationEmail(@PathVariable(name = "librarianID") Long librarianID) {
         Librarian librarian = librarianService.checkEmail(librarianID);
 
         librarianService.sendVerificationCode(librarian);
+
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping(path = "/resend-verification/{librarianID}")
+    public ResponseEntity<?> resendVerificationEmail(@PathVariable(name = "librarianID") Long librarianID) {
+        Librarian librarian = librarianService.checkEmail(librarianID);
+
+        librarianService.resendVerificationCode(librarian);
 
         return ResponseEntity.noContent().build();
     }

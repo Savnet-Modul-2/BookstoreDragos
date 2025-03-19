@@ -11,8 +11,10 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -71,6 +73,7 @@ public class ReservationService {
         return userRepository.findReservationFromUserByStatus(userID, null, pageable);
     }
 
+    //@Transactional
     public Reservation reserveBook(Long userID, Long bookID, LocalDate startDate, LocalDate endDate) {
         Exemplary exemplary = exemplaryRepository.reserveExemplary(bookID, startDate, endDate)
                 .orElseThrow(() -> new EntityNotFoundException("No exemplars of book with ID " + bookID + " available."));
@@ -85,6 +88,8 @@ public class ReservationService {
         reservation.setStatus(ReservationStatus.PENDING);
 
         exemplary.addReservation(reservation);
+        exemplary.setUpdateTime(LocalDateTime.now());
+
         user.addReservation(reservation);
 
         reservationRepository.save(reservation);
