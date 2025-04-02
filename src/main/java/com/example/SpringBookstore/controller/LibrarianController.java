@@ -50,7 +50,7 @@ public class LibrarianController {
     @DeleteMapping(path = "/{librarianID}")
     public ResponseEntity<?> delete(@PathVariable(name = "librarianID") Long librarianID) {
         librarianService.delete(librarianID);
-        return ResponseEntity.ok().body("Deleted librarian with ID " + librarianID + ".");
+        return ResponseEntity.noContent().build();
     }
 
     @PostMapping(path = "/{librarianID}")

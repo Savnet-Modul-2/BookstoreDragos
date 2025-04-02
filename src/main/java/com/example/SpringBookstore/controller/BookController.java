@@ -47,7 +47,8 @@ public class BookController {
     }
 
     @GetMapping(path = "/paginated")
-    public ResponseEntity<?> listPaginated(@RequestParam(required = false) Integer pageNumber, @RequestParam(required = false) Integer pageSize) {
+    public ResponseEntity<?> listPaginated(@RequestParam(required = false) Integer pageNumber,
+                                           @RequestParam(required = false) Integer pageSize) {
         Page<Book> books = bookService.listPaginated(pageNumber, pageSize);
 
         return ResponseEntity.ok(books.stream()
@@ -56,19 +57,28 @@ public class BookController {
     }
 
     @PutMapping(path = "/{bookID}")
-    public ResponseEntity<?> update(@PathVariable(name = "bookID") Long bookID, @Validated(value = ValidationOrder.class) @RequestBody BookDTO bookDTO) {
+    public ResponseEntity<?> update(@PathVariable(name = "bookID") Long bookID,
+                                    @Validated(value = ValidationOrder.class) @RequestBody BookDTO bookDTO) {
         Book updatedBook = bookService.update(bookID, bookDTO);
         return ResponseEntity.ok((BookMapper.book2BookDTO(updatedBook)));
     }
 
+    @DeleteMapping(path = "/{bookID}")
+    public ResponseEntity<?> delete(@PathVariable(name = "bookID") Long bookID) {
+        bookService.delete(bookID);
+        return ResponseEntity.noContent().build();
+    }
+
     @PutMapping(path = "/{bookID}/{libraryID}")
-    public ResponseEntity<?> addBook(@PathVariable(name = "bookID") Long bookID, @PathVariable(name = "libraryID") Long libraryID) {
+    public ResponseEntity<?> addBook(@PathVariable(name = "bookID") Long bookID,
+                                     @PathVariable(name = "libraryID") Long libraryID) {
         bookService.addBook(bookID, libraryID);
         return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping(path = "/{bookID}/{libraryID}")
-    public ResponseEntity<?> removeBook(@PathVariable(name = "bookID") Long bookID, @PathVariable(name = "libraryID") Long libraryID) {
+    public ResponseEntity<?> removeBook(@PathVariable(name = "bookID") Long bookID,
+                                        @PathVariable(name = "libraryID") Long libraryID) {
         bookService.removeBook(bookID, libraryID);
         return ResponseEntity.noContent().build();
     }

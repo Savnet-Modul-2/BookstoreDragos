@@ -29,6 +29,9 @@ dependencies {
 
     //Validation Dependency
     implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+    //H2 Database Dependency (for testing purposes)
+    implementation 'com.h2database:h2'
 }
 
 tasks.named('test') {

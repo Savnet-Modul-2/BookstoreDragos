@@ -68,6 +68,14 @@ public class BookService {
         return bookRepository.save(bookToUpdate);
     }
 
+    public void delete(Long bookID) {
+        if (!bookRepository.existsById(bookID)) {
+            throw new EntityNotFoundException("Book with ID " + bookID + " not found.");
+        }
+
+        bookRepository.deleteById(bookID);
+    }
+
     public void addBook(Long bookID, Long libraryID) {
         Book bookToAdd = findByID(bookID);
         Library libraryToReceive = libraryService.findByID(libraryID);
