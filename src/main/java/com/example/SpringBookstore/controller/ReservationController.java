@@ -25,13 +25,18 @@ public class ReservationController {
     }
 
     @PostMapping(path = "/{userID}/{bookID}")
-    public ResponseEntity<?> reserveBook(@PathVariable(name = "userID") Long userID, @PathVariable(name = "bookID") Long bookID, @Validated(value = ValidationOrder.class) @RequestBody ReservationDTO reservationDTO) {
+    public ResponseEntity<?> reserveBook(@PathVariable(name = "userID") Long userID,
+                                         @PathVariable(name = "bookID") Long bookID,
+                                         @Validated(value = ValidationOrder.class) @RequestBody ReservationDTO reservationDTO) {
         Reservation reservation = reservationService.reserveBook(userID, bookID, reservationDTO.getStartDate(), reservationDTO.getEndDate());
         return ResponseEntity.ok(ReservationMapper.reservation2ReservationDTO(reservation));
     }
 
     @GetMapping
-    public ResponseEntity<?> searchBooks(@RequestParam(required = false) String title, @RequestParam(required = false) String author, @RequestParam(required = false) Integer pageNumber, @RequestParam(required = false) Integer pageSize) {
+    public ResponseEntity<?> searchBooks(@RequestParam(required = false) String title,
+                                         @RequestParam(required = false) String author,
+                                         @RequestParam(required = false) Integer pageNumber,
+                                         @RequestParam(required = false) Integer pageSize) {
         Page<Book> foundBooks = reservationService.searchBooks(title, author, pageNumber, pageSize);
 
         return ResponseEntity.ok(foundBooks.stream()
@@ -68,7 +73,8 @@ public class ReservationController {
     }
 
     @PutMapping(path = "/{librarianID}/{reservationID}")
-    public ResponseEntity<?> updateStatus(@PathVariable(name = "librarianID") Long librarianID, @PathVariable(name = "reservationID") Long reservationID) {
+    public ResponseEntity<?> updateStatus(@PathVariable(name = "librarianID") Long librarianID,
+                                          @PathVariable(name = "reservationID") Long reservationID) {
         Reservation updatedReservation = reservationService.updateStatus(librarianID, reservationID);
         return ResponseEntity.ok(ReservationMapper.reservation2ReservationDTO(updatedReservation));
     }

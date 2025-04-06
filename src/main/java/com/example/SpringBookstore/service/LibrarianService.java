@@ -2,6 +2,7 @@ package com.example.SpringBookstore.service;
 
 import com.example.SpringBookstore.entity.Librarian;
 import com.example.SpringBookstore.entity.Library;
+import com.example.SpringBookstore.entity.Reservation;
 import com.example.SpringBookstore.exceptionHandler.exception.BadRequestException;
 import com.example.SpringBookstore.repository.LibrarianRepository;
 import com.example.SpringBookstore.repository.LibraryRepository;
@@ -152,5 +153,15 @@ public class LibrarianService {
         librarianRepository.save(librarian);
 
         return librarian;
+    }
+
+    public void delayedReservationsNotification(List<Reservation> delayedReservations) {
+        for (Reservation reservation : delayedReservations) {
+            String librarianEmail = reservation.getExemplary().getBook().getLibrary().getLibrarian().getEmail();
+            String customerFullName = reservation.getUser().getFirstName() + " " + reservation.getUser().getLastName();
+            String customerPhoneNumber = reservation.getUser().getPhoneNumber();
+
+            emailService.sendDelayedReservationEmail(librarianEmail, customerFullName, customerPhoneNumber, reservation);
+        }
     }
 }

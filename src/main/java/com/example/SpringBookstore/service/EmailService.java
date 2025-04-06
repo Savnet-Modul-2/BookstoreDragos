@@ -1,5 +1,6 @@
 package com.example.SpringBookstore.service;
 
+import com.example.SpringBookstore.entity.Reservation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
@@ -37,6 +38,22 @@ public class EmailService {
         email.setText(text);
 
         javaMailSender.send(email);
+    }
+
+    public void sendDelayedReservationEmail(String recipient, String fullName, String phoneNumber, Reservation reservation) {
+        SimpleMailMessage email = new SimpleMailMessage();
+
+        email.setFrom(sender);
+        email.setTo(recipient);
+
+        email.setSubject("Delayed Reservation");
+
+        email.setText("The reservation made by" + fullName + " has been delayed.\n" +
+                "User phone number:" + phoneNumber +
+                "Please see the reservation details below:\n" +
+                "Exemplary: " + reservation.getExemplary() +
+                "Start Date: " + reservation.getStartDate() +
+                "End Date: " + reservation.getEndDate());
     }
 
     public String generateVerificationCode() {
