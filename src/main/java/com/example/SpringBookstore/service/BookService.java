@@ -1,9 +1,8 @@
 package com.example.SpringBookstore.service;
 
+import com.example.SpringBookstore.dto.BookDTO;
 import com.example.SpringBookstore.entity.Book;
 import com.example.SpringBookstore.entity.Library;
-import com.example.SpringBookstore.entityDTO.BookDTO;
-import com.example.SpringBookstore.mapper.LibraryMapper;
 import com.example.SpringBookstore.repository.BookRepository;
 import com.example.SpringBookstore.repository.LibraryRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -13,36 +12,53 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-
 @Service
 public class BookService {
     private final BookRepository bookRepository;
     private final LibraryRepository libraryRepository;
-    private final LibraryService libraryService;
 
     @Autowired
-    public BookService(BookRepository bookRepository, LibraryRepository libraryRepository, LibraryService libraryService) {
+    public BookService(BookRepository bookRepository, LibraryRepository libraryRepository) {
         this.bookRepository = bookRepository;
         this.libraryRepository = libraryRepository;
-        this.libraryService = libraryService;
     }
 
-    public Book create(Book book) {
-        if (book.getID() != null) {
+    public Book create(Book bookToCreate) {
+        if (bookToCreate.getId() != null) {
             throw new RuntimeException("Cannot provide an ID when creating a new book.");
         }
 
-        return bookRepository.save(book);
+        return bookRepository.save(bookToCreate);
     }
 
-    public Book findByID(Long bookID) {
-        return bookRepository.findById(bookID)
-                .orElseThrow(() -> new EntityNotFoundException("Book with ID " + bookID + " not found."));
+    public Book findById(Long bookId) {
+        return bookRepository.findById(bookId)
+                .orElseThrow(() -> new EntityNotFoundException("Book with ID " + bookId + " not found."));
     }
 
-    public List<Book> listAll() {
-        return bookRepository.findAll();
+    public Page<Book> findAll(Integer pageSize) {
+        Pageable pageable = pageSize != null ? PageRequest.of(0, pageSize) : Pageable.unpaged();
+        return bookRepository.findAll(pageable);
+    }
+
+    public Book update(Long bookId, BookDTO bookDTO) {
+        Book bookToUpdate = findById(bookId);
+
+        bookToUpdate.setTitle(bookDTO.getTitle());
+        bookToUpdate.setAuthor(bookDTO.getAuthor());
+        bookToUpdate.setCategory(bookDTO.getCategory());
+        bookToUpdate.setLanguage(bookDTO.getLanguage());
+        bookToUpdate.setNumberOfPages(bookDTO.getNumberOfPages());
+
+        return bookRepository.save(bookToUpdate);
+    }
+
+    public void delete(Long bookId) {
+        if (!bookRepository.existsById(bookId)) {
+            throw new EntityNotFoundException("Cannot delete book. Book with ID " + bookId + " not found.");
+        }
+
+        bookRepository.deleteById(bookId);
     }
 
     public Page<Book> listPaginated(Integer pageNumber, Integer pageSize) {
@@ -50,47 +66,39 @@ public class BookService {
         return bookRepository.findAll(pageable);
     }
 
-    public Book update(Long bookID, BookDTO bookUpdate) {
-        Book bookToUpdate = findByID(bookID);
+    public Book addToLibrary(Long bookId, Long libraryId) {
+        Book bookToAdd = findById(bookId);
 
-        bookToUpdate.setISBN(bookUpdate.getISBN());
-        bookToUpdate.setTitle(bookUpdate.getTitle());
-        bookToUpdate.setAuthor(bookUpdate.getAuthor());
-        bookToUpdate.setReleaseDate(bookUpdate.getReleaseDate());
-        bookToUpdate.setNumberOfPages(bookUpdate.getNumberOfPages());
-        bookToUpdate.setCategory(bookUpdate.getCategory());
-        bookToUpdate.setLanguage(bookUpdate.getLanguage());
+        Library libraryToReceiveBook = libraryRepository.findById(libraryId)
+                .orElseThrow(() -> new EntityNotFoundException("Library with ID " + libraryId + " not found."));
 
-        if (bookUpdate.getLibraryDTO() != null) {
-            bookToUpdate.setLibrary(LibraryMapper.libraryDTO2Library(bookUpdate.getLibraryDTO()));
-        }
+        libraryToReceiveBook.addBook(bookToAdd);
 
-        return bookRepository.save(bookToUpdate);
+        libraryRepository.save(libraryToReceiveBook);
+
+        return bookRepository.save(bookToAdd);
     }
 
-    public void delete(Long bookID) {
-        if (!bookRepository.existsById(bookID)) {
-            throw new EntityNotFoundException("Book with ID " + bookID + " not found.");
-        }
+    public void removeFromLibrary(Long bookId, Long libraryId) {
+        Book bookToRemove = findById(bookId);
 
-        bookRepository.deleteById(bookID);
+        Library libraryToDiscardBook = libraryRepository.findById(libraryId)
+                .orElseThrow(() -> new EntityNotFoundException("Library with ID " + libraryId + " not found."));
+
+        libraryToDiscardBook.removeBook(bookToRemove);
+
+        //bookRepository.save(bookToRemove); //not needed if orphanRemoval = true because that tells JPA to delete it automatically once it looses its relation
+        libraryRepository.save(libraryToDiscardBook);
     }
 
-    public void addBook(Long bookID, Long libraryID) {
-        Book bookToAdd = findByID(bookID);
-        Library libraryToReceive = libraryService.findByID(libraryID);
+    public Book createForLibrary(Book bookToCreate, Long libraryId) {
+        Library libraryToReceiveBook = libraryRepository.findById(libraryId)
+                .orElseThrow(() -> new EntityNotFoundException("Library with ID " + libraryId + " not found."));
 
-        libraryToReceive.addBook(bookToAdd);
+        libraryToReceiveBook.addBook(bookToCreate);
 
-        libraryRepository.save(libraryToReceive);
-    }
+        libraryRepository.save(libraryToReceiveBook);
 
-    public void removeBook(Long bookID, Long libraryID) {
-        Book bookToRemove = findByID(bookID);
-        Library libraryToDiscard = libraryService.findByID(libraryID);
-
-        libraryToDiscard.removeBook(bookToRemove);
-
-        libraryRepository.save(libraryToDiscard);
+        return bookRepository.save(bookToCreate);
     }
 }

@@ -2,35 +2,30 @@ package com.example.SpringBookstore;
 
 public enum ReservationStatus {
     PENDING {
-        @Override
-        public boolean isNextStatePossible(ReservationStatus reservationStatus) {
-            return reservationStatus == ReservationStatus.IN_PROGRESS || reservationStatus == ReservationStatus.CANCELLED;
+        public boolean isNextStatusValid(ReservationStatus nextStatus) {
+            return nextStatus == ReservationStatus.IN_PROGRESS;
         }
     },
     IN_PROGRESS {
-        @Override
-        public boolean isNextStatePossible(ReservationStatus reservationStatus) {
-            return reservationStatus == ReservationStatus.DELAYED || reservationStatus == ReservationStatus.FINISHED;
+        public boolean isNextStatusValid(ReservationStatus nextStatus) {
+            return nextStatus == ReservationStatus.DELAYED || nextStatus == ReservationStatus.FINISHED;
         }
     },
     DELAYED {
-        @Override
-        public boolean isNextStatePossible(ReservationStatus reservationStatus) {
-            return reservationStatus == ReservationStatus.FINISHED;
+        public boolean isNextStatusValid(ReservationStatus nextStatus) {
+            return nextStatus == ReservationStatus.FINISHED;
         }
     },
     CANCELLED {
-        @Override
-        public boolean isNextStatePossible(ReservationStatus reservationStatus) {
+        public boolean isNextStatusValid(ReservationStatus nextStatus) {
             return false;
         }
     },
     FINISHED {
-        @Override
-        public boolean isNextStatePossible(ReservationStatus reservationStatus) {
+        public boolean isNextStatusValid(ReservationStatus nextStatus) {
             return false;
         }
     };
 
-    public abstract boolean isNextStatePossible(ReservationStatus reservationStatus);
+    public abstract boolean isNextStatusValid(ReservationStatus reservationStatus);
 }

@@ -1,8 +1,9 @@
 package com.example.SpringBookstore.service;
 
 import com.example.SpringBookstore.ReservationStatus;
+import com.example.SpringBookstore.dto.ReservationDTO;
+import com.example.SpringBookstore.dto.ReservationFiltersDTO;
 import com.example.SpringBookstore.entity.*;
-import com.example.SpringBookstore.entityDTO.ReservationFiltersDTO;
 import com.example.SpringBookstore.repository.*;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,44 +21,113 @@ import java.util.List;
 @Service
 public class ReservationService {
     private final ReservationRepository reservationRepository;
-    private final UserRepository userRepository;
     private final LibrarianRepository librarianRepository;
     private final LibraryRepository libraryRepository;
     private final BookRepository bookRepository;
-    private final ExemplaryRepository exemplaryRepository;
+    private final CopyRepository copyRepository;
+    private final UserRepository userRepository;
 
     @Autowired
-    public ReservationService(ReservationRepository reservationRepository, UserRepository userRepository, LibrarianRepository librarianRepository, LibraryRepository libraryRepository, BookRepository bookRepository, ExemplaryRepository exemplaryRepository) {
+    public ReservationService(ReservationRepository reservationRepository,
+                              LibrarianRepository librarianRepository,
+                              LibraryRepository libraryRepository,
+                              BookRepository bookRepository,
+                              CopyRepository copyRepository,
+                              UserRepository userRepository) {
         this.reservationRepository = reservationRepository;
-        this.userRepository = userRepository;
         this.librarianRepository = librarianRepository;
         this.libraryRepository = libraryRepository;
         this.bookRepository = bookRepository;
-        this.exemplaryRepository = exemplaryRepository;
+        this.copyRepository = copyRepository;
+        this.userRepository = userRepository;
+    }
+
+    public Reservation create(Reservation reservationToCreate) {
+        if (reservationToCreate.getId() != null) {
+            throw new RuntimeException("Cannot provide an ID when creating a new reservation.");
+        }
+
+        return reservationRepository.save(reservationToCreate);
+    }
+
+    public Reservation findById(Long reservationId) {
+        return reservationRepository.findById(reservationId)
+                .orElseThrow(() -> new EntityNotFoundException("Reservation with ID " + reservationId + " not found."));
+    }
+
+    public Page<Reservation> findAll(Integer pageSize) {
+        Pageable pageable = pageSize != null ? PageRequest.of(0, pageSize) : Pageable.unpaged();
+        return reservationRepository.findAll(pageable);
+    }
+
+    public Reservation update(Long reservationId, ReservationDTO reservationDTO) {
+        Reservation reservationToUpdate = findById(reservationId);
+
+        reservationToUpdate.setStartDate(reservationDTO.getStartDate());
+        reservationToUpdate.setEndDate(reservationDTO.getEndDate());
+
+        return reservationRepository.save(reservationToUpdate);
+    }
+
+    public void delete(Long reservationId) {
+        if (!reservationRepository.existsById(reservationId)) {
+            throw new EntityNotFoundException("Cannot delete reservation. Reservation with ID " + reservationId + " not found.");
+        }
+
+        reservationRepository.deleteById(reservationId);
     }
 
     public Page<Book> searchBooks(String title, String author, Integer pageNumber, Integer pageSize) {
         Pageable pageable = (pageNumber != null && pageSize != null) ? PageRequest.of(pageNumber, pageSize) : Pageable.unpaged();
-        return bookRepository.searchBooks(title, author, pageable);
+        return bookRepository.findByTitleAndAuthor(title, author, pageable);
     }
 
-    public Page<Reservation> findReservationsFromLibraryForPeriod(Long libraryID, ReservationFiltersDTO reservationFiltersDTO, String sortDirection, String sortCriteria, Integer pageNumber, Integer pageSize) {
-        libraryRepository.findById(libraryID)
-                .orElseThrow(() -> new EntityNotFoundException("Library with ID" + libraryID + " not found."));
+    @Transactional
+    public Reservation reserveCopy(Long userId, Long bookId, LocalDate startDate, LocalDate endDate) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("User with ID " + userId + " not found."));
 
-        List<String> reservationStatusFilterStrings = reservationFiltersDTO.reservationStatusFilters().stream()
-                .map(Enum::name)
-                .toList();
+        Copy copy = copyRepository.findFirstAvailableCopy(bookId, startDate, endDate)
+                .orElseThrow(() -> new EntityNotFoundException("No copies available for reservations."));
 
-        Sort sort = Sort.by(Sort.Direction.fromString(sortDirection), sortCriteria);
-        Pageable pageable = (pageNumber != null && pageSize != null) ? PageRequest.of(pageNumber, pageSize, sort) : Pageable.unpaged();
+        Reservation reservation = new Reservation();
 
-        return libraryRepository.findReservationByLibraryIdForPeriod(libraryID, reservationFiltersDTO.startDate(), reservationFiltersDTO.endDate(), reservationStatusFilterStrings, pageable);
+        reservation.setStartDate(startDate);
+        reservation.setEndDate(endDate);
+        reservation.setStatus(ReservationStatus.PENDING);
+
+        user.addReservation(reservation);
+
+        copy.addReservation(reservation);
+        copy.setUpdateTime(LocalDateTime.now());
+
+        userRepository.save(user);
+        copyRepository.save(copy);
+
+        return reservationRepository.save(reservation);
     }
 
-    public Page<Reservation> findReservationsFromUserByStatus(Long userID, ReservationFiltersDTO reservationFiltersDTO, String sortDirection, String sortCriteria, Integer pageNumber, Integer pageSize) {
-        userRepository.findById(userID)
-                .orElseThrow(() -> new EntityNotFoundException("User with ID " + userID + " not found."));
+    public Reservation updateStatus(Long librarianId, Long reservationId) {
+        Librarian librarian = librarianRepository.findById(librarianId)
+                .orElseThrow(() -> new EntityNotFoundException("Librarian with ID " + librarianId + " not found."));
+
+        Reservation reservation = reservationRepository.findById(reservationId)
+                .orElseThrow(() -> new EntityNotFoundException("Reservation with ID " + reservationId + " not found."));
+
+        if (reservation.getCopy().getBook().getLibrary().getLibrarian().equals(librarian)) {
+            if (reservation.getStatus().isNextStatusValid(ReservationStatus.IN_PROGRESS)) {
+                reservation.setStatus(ReservationStatus.IN_PROGRESS);
+            } else if (reservation.getStatus().isNextStatusValid(ReservationStatus.FINISHED)) {
+                reservation.setStatus(ReservationStatus.FINISHED);
+            }
+        }
+
+        return reservationRepository.save(reservation);
+    }
+
+    public Page<Reservation> findReservationsFromUserByStatus(Long userId, ReservationFiltersDTO reservationFiltersDTO, String sortCriteria, String sortDirection, Integer pageNumber, Integer pageSize) {
+        userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("User with ID " + userId + " not found."));
 
         Sort sort = Sort.by(Sort.Direction.fromString(sortDirection), sortCriteria);
         Pageable pageable = (pageNumber != null && pageSize != null) ? PageRequest.of(pageNumber, pageSize, sort) : Pageable.unpaged();
@@ -67,53 +137,23 @@ public class ReservationService {
                     .map(Enum::name)
                     .toList();
 
-            return userRepository.findReservationFromUserByStatus(userID, reservationStatusFilterStrings, pageable);
+            return userRepository.findReservationFromUserByStatus(userId, reservationStatusFilterStrings, pageable);
         }
 
-        return userRepository.findReservationFromUserByStatus(userID, null, pageable);
+        return userRepository.findReservationFromUserByStatus(userId, null, pageable);
     }
 
-    @Transactional
-    public Reservation reserveBook(Long userID, Long bookID, LocalDate startDate, LocalDate endDate) {
-        Exemplary exemplary = exemplaryRepository.reserveExemplary(bookID, startDate, endDate)
-                .orElseThrow(() -> new EntityNotFoundException("No exemplars of book with ID " + bookID + " available."));
+    public Page<Reservation> findReservationsFromLibraryForPeriod(Long libraryId, ReservationFiltersDTO reservationFiltersDTO, String sortCriteria, String sortDirection, Integer pageNumber, Integer pageSize) {
+        libraryRepository.findById(libraryId)
+                .orElseThrow(() -> new EntityNotFoundException("Library with ID" + libraryId + " not found."));
 
-        User user = userRepository.findById(userID)
-                .orElseThrow(() -> new EntityNotFoundException("User with ID " + userID + " not found."));
+        List<String> reservationStatusFilterStrings = reservationFiltersDTO.reservationStatusFilters().stream()
+                .map(Enum::name)
+                .toList();
 
-        Reservation reservation = new Reservation();
+        Sort sort = Sort.by(Sort.Direction.fromString(sortDirection), sortCriteria);
+        Pageable pageable = (pageNumber != null && pageSize != null) ? PageRequest.of(pageNumber, pageSize, sort) : Pageable.unpaged();
 
-        reservation.setStartDate(startDate);
-        reservation.setEndDate(endDate);
-        reservation.setStatus(ReservationStatus.PENDING);
-
-        exemplary.addReservation(reservation);
-        exemplary.setUpdateTime(LocalDateTime.now());
-
-        user.addReservation(reservation);
-
-        reservationRepository.save(reservation);
-        exemplaryRepository.save(exemplary);
-        userRepository.save(user);
-
-        return reservation;
-    }
-
-    public Reservation updateStatus(Long librarianID, Long reservationID) {
-        librarianRepository.findById(librarianID)
-                .orElseThrow(() -> new EntityNotFoundException("Librarian with ID " + librarianID + " not found."));
-
-        Reservation reservation = reservationRepository.findById(reservationID)
-                .orElseThrow(() -> new EntityNotFoundException("Reservation with ID " + reservationID + " not found."));
-
-        if (reservation.getExemplary().getBook().getLibrary().getLibrarian().getID().equals(librarianID)) {
-            if (reservation.getStatus().isNextStatePossible(ReservationStatus.IN_PROGRESS)) {
-                reservation.setStatus(ReservationStatus.IN_PROGRESS);
-            } else if (reservation.getStatus().isNextStatePossible(ReservationStatus.FINISHED)) {
-                reservation.setStatus(ReservationStatus.FINISHED);
-            }
-        }
-
-        return reservationRepository.save(reservation);
+        return libraryRepository.findReservationByLibraryIdForPeriod(libraryId, reservationFiltersDTO.startDate(), reservationFiltersDTO.endDate(), reservationStatusFilterStrings, pageable);
     }
 }

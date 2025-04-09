@@ -14,18 +14,18 @@ import java.util.Optional;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
-    Optional<User> findByEmail(String emailAddress);
+    Optional<User> findByEmailAddress(String emailAddress);
 
     @Query(value = """
             SELECT r.* FROM reservations r
-            WHERE r.USER_ID = :userID
+            WHERE r.USER_ID = :userId
             AND (r.STATUS = NULL OR r.STATUS IN :reservationStatusFilters)
             """,
             countQuery = """
                     SELECT COUNT(*) FROM reservations r
-                    WHERE r.USER_ID = :userID
+                    WHERE r.USER_ID = :userId
                     AND (r.STATUS = NULL OR r.STATUS IN :reservationStatusFilters)
                     """,
             nativeQuery = true)
-    Page<Reservation> findReservationFromUserByStatus(@Param(value = "userID") Long userID, @Param(value = "reservationStatusFilters") List<String> reservationStatusFilters, Pageable pageable);
+    Page<Reservation> findReservationFromUserByStatus(@Param(value = "userId") Long userId, @Param(value = "reservationStatusFilters") List<String> reservationStatusFilters, Pageable pageable);
 }
