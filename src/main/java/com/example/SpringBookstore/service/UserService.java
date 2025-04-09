@@ -1,20 +1,20 @@
 package com.example.SpringBookstore.service;
 
-import com.example.SpringBookstore.dto.UserDTO;
 import com.example.SpringBookstore.entity.User;
-import com.example.SpringBookstore.exceptionHandling.exception.BadRequestException;
+import com.example.SpringBookstore.entityDTO.UserDTO;
+import com.example.SpringBookstore.exceptionHandler.exception.BadRequestException;
 import com.example.SpringBookstore.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.InputMismatchException;
+import java.util.List;
 
 @Service
 public class UserService {
@@ -22,13 +22,13 @@ public class UserService {
     private final EmailService emailService;
 
     @Autowired
-    public UserService(UserRepository userRepository, EmailService emailService) {
+    public UserService(JavaMailSender javaMailSender, UserRepository userRepository, EmailService emailService) {
         this.userRepository = userRepository;
         this.emailService = emailService;
     }
 
     public User create(User userToCreate) {
-        if (userToCreate.getId() != null) {
+        if (userToCreate.getID() != null) {
             throw new RuntimeException("Cannot provide an ID when creating a new user.");
         }
 
@@ -37,97 +37,114 @@ public class UserService {
         return userRepository.save(userToCreate);
     }
 
-    public User findById(Long userId) {
-        return userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException("User with ID " + userId + " not found."));
+    public User findByID(Long userID) {
+        return userRepository.findById(userID)
+                .orElseThrow(() -> new EntityNotFoundException("User with ID " + userID + "not found."));
     }
 
-    public Page<User> findAll(Integer pageSize) {
-        Pageable pageable = pageSize != null ? PageRequest.of(0, pageSize) : Pageable.unpaged();
-
-        return userRepository.findAll(pageable);
+    public List<User> findAll() {
+        return userRepository.findAll();
     }
 
-    public User update(Long userId, UserDTO userUpdate) {
-        User userToUpdate = findById(userId);
+    public User update(Long userID, UserDTO userUpdate) {
+        User userToUpdate = findByID(userID);
 
         userToUpdate.setFirstName(userUpdate.getFirstName());
         userToUpdate.setLastName(userUpdate.getLastName());
         userToUpdate.setGender(userUpdate.getGender());
-        userToUpdate.setAge(userUpdate.getAge());
+        userToUpdate.setCountry(userUpdate.getCountry());
         userToUpdate.setBirthDate(userUpdate.getBirthDate());
-        userToUpdate.setEmailAddress(userUpdate.getEmailAddress());
-        userToUpdate.setPassword(userUpdate.getPassword());
+        userToUpdate.setEmail(userUpdate.getEmail());
+        userToUpdate.setPhoneNumber(userUpdate.getPhoneNumber());
 
         return userRepository.save(userToUpdate);
     }
 
-    public void delete(Long userId) {
-        if (!userRepository.existsById(userId)) {
-            throw new EntityNotFoundException("Cannot delete user. User with ID " + userId + " not found.");
+    public void delete(Long userID) {
+        if (!userRepository.existsById(userID)) {
+            throw new EntityNotFoundException("User with ID " + userID + " not found.");
         }
 
-        userRepository.deleteById(userId);
+        userRepository.deleteById(userID);
     }
 
-    public void sendEmail(Long userId) {
-        User user = findById(userId);
-        emailService.sendEmail(user.getEmailAddress(), "Bookstore Email", "This is an email for " + user.getFirstName() + " " + user.getLastName() + ".");
-    }
+    public User checkEmail(Long userID) {
+        User user = userRepository.findById(userID)
+                .orElseThrow(() -> new EntityNotFoundException("User with ID " + userID + " not found."));
 
-    public void sendVerificationEmail(User user) {
-        if (!user.getVerifiedAccount()) {
-            String verificationCode = emailService.generateVerificationCode();
-
-            user.setVerificationCode(verificationCode);
-            user.setVerificationCodeGenerationTime(LocalDateTime.now());
-
-            userRepository.save(user);
-
-            emailService.sendVerificationEmail(user.getEmailAddress(), verificationCode, emailService.getMaximumVerificationTime());
-        }
-    }
-
-    public void resendVerificationEmail(Long userId) {
-        User user = findById(userId);
-
-        long remainingTime = emailService.getMaximumVerificationTime() - Duration.between(user.getVerificationCodeGenerationTime(), LocalDateTime.now()).toMinutes();
-
-        if (remainingTime > 1) {
-            emailService.sendVerificationEmail(user.getEmailAddress(), user.getVerificationCode(), remainingTime);
-        } else {
-            sendVerificationEmail(user);
-        }
-    }
-
-    public User verifyAccount(Long userId, String verificationCode) {
-        User user = findById(userId);
-
-        if (Duration.between(user.getVerificationCodeGenerationTime(), LocalDateTime.now()).toMinutes() > 5) {
-            throw new BadRequestException("Verification code expired. Request a new verification code.");
-        } else if (!user.getVerificationCode().equals(verificationCode)) {
-            throw new BadRequestException("User account verification unsuccessful. Invalid verification code.");
-        } else {
-            user.setVerificationCodeGenerationTime(null);
-            user.setVerificationCode(null);
-
-            user.setVerifiedAccount(true);
-
-            userRepository.save(user);
+        if (user.getEmail() == null || user.getEmail().isEmpty()) {
+            throw new IllegalArgumentException("User with ID " + user.getID() + " does not have an email address.");
         }
 
         return user;
     }
 
+    public void sendEmail(String recipient, String sender, String text) {
+        emailService.sendEmail(recipient, sender, text);
+    }
+
+    public void sendVerificationCode(User user) {
+        if (!user.getVerifiedAccount()) {
+            user.setVerificationCode(emailService.generateVerificationCode());
+            user.setVerificationCodeGenerationTime(LocalDateTime.now());
+
+            userRepository.save(user);
+
+            emailService.sendEmail(user.getEmail(), "User Verification Email", "Your verification code is " + user.getVerificationCode() + ".\nThis verification code will expire in 5 minutes.");
+        }
+    }
+
+    public void resendVerificationCode(User user) {
+        if (user.getVerificationCodeGenerationTime() == null) {
+            throw new BadRequestException("No verification code previously generated for user.");
+        }
+
+        Duration elapsedTime = Duration.between(user.getVerificationCodeGenerationTime(), LocalDateTime.now());
+
+        if (elapsedTime.toMinutes() < emailService.getVerificationTime() - 1) {
+            emailService.sendEmail(user.getEmail(), "User Verification Email", "Your verification code is " + user.getVerificationCode() + ".\nThis verification code will expire in " + (emailService.getVerificationTime() - elapsedTime.toMinutes()) + " minute(s).");
+            return;
+        }
+
+        sendVerificationCode(user);
+    }
+
+    public User checkVerificationCode(Long userID, String code) {
+        User user = findByID(userID);
+
+        LocalDateTime currentTime = LocalDateTime.now();
+        Duration elapsedTime = Duration.between(user.getVerificationCodeGenerationTime(), currentTime);
+
+        if (elapsedTime.toMinutes() > emailService.getVerificationTime()) {
+            user.setVerificationCode(null);
+
+            userRepository.save(user);
+
+            throw new BadRequestException("Verification code expired. Request a new verification code.");
+        } else if (!user.getVerificationCode().equals(code)) {
+            throw new BadRequestException("User account verification unsuccessful. Invalid code provided.");
+        }
+
+        user.setVerifiedAccount(true);
+        user.setVerificationCode(null);
+        user.setVerificationCodeGenerationTime(null);
+
+        userRepository.save(user);
+
+        return user;
+    }
+
     public User login(String emailAddress, String password) {
-        User user = userRepository.findByEmailAddress(emailAddress)
+        User user = userRepository.findByEmail(emailAddress)
                 .orElseThrow(() -> new EntityNotFoundException("User with email address " + emailAddress + " not found."));
 
-        String hashedPassword = DigestUtils.md5DigestAsHex(password.getBytes(StandardCharsets.UTF_8));
+        String encryptedPassword = DigestUtils.md5DigestAsHex(password.getBytes(StandardCharsets.UTF_8));
 
-        if (!user.getEmailAddress().equals(emailAddress) || !hashedPassword.equals(user.getPassword())) {
-            throw new BadRequestException("Login unsuccessful. Invalid username or password.");
+        if (!user.getEmail().equals(emailAddress) || !user.getPassword().equals(encryptedPassword)) {
+            throw new InputMismatchException("Login unsuccessful. Invalid email address or password.");
         }
+
+        userRepository.save(user);
 
         return user;
     }

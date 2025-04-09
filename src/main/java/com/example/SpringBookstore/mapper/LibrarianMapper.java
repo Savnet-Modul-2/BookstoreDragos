@@ -1,16 +1,16 @@
 package com.example.SpringBookstore.mapper;
 
-import com.example.SpringBookstore.dto.LibrarianDTO;
 import com.example.SpringBookstore.entity.Librarian;
+import com.example.SpringBookstore.entityDTO.LibrarianDTO;
 
 public class LibrarianMapper {
     public static Librarian librarianDTO2Librarian(LibrarianDTO librarianDTO) {
         Librarian librarian = new Librarian();
 
-        librarian.setFirstName(librarianDTO.getFirstName());
-        librarian.setLastName(librarianDTO.getLastName());
-        librarian.setEmailAddress(librarianDTO.getEmailAddress());
-        librarian.setPassword(librarian.getEmailAddress());
+        librarian.setID(librarianDTO.getID());
+        librarian.setName(librarianDTO.getName());
+        librarian.setEmail(librarianDTO.getEmailAddress());
+        librarian.setPassword(librarianDTO.getPassword());
         librarian.setVerifiedAccount(librarianDTO.getVerifiedAccount());
 
         if (librarianDTO.getLibraryDTO() != null) {
@@ -23,16 +23,11 @@ public class LibrarianMapper {
     public static LibrarianDTO librarian2LibrarianDTO(Librarian librarian) {
         LibrarianDTO librarianDTO = new LibrarianDTO();
 
-        librarianDTO.setId(librarian.getId());
-        librarianDTO.setFirstName(librarian.getFirstName());
-        librarianDTO.setLastName(librarian.getLastName());
-        librarianDTO.setEmailAddress(librarian.getEmailAddress());
+        librarianDTO.setID(librarian.getID());
+        librarianDTO.setName(librarian.getName());
+        librarianDTO.setEmailAddress(librarian.getEmail());
         librarianDTO.setPassword(librarian.getPassword());
         librarianDTO.setVerifiedAccount(librarian.getVerifiedAccount());
-
-        if (librarian.getLibrary() != null) {
-            librarianDTO.setLibraryDTO(LibraryMapper.library2LibraryDTO(librarian.getLibrary()));
-        }
 
         return librarianDTO;
     }

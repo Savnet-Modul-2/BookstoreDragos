@@ -1,5 +1,6 @@
 package com.example.SpringBookstore.service;
 
+import com.example.SpringBookstore.entity.Reservation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
@@ -11,56 +12,54 @@ import java.util.Random;
 
 @Service
 public class EmailService {
-    @Value(value = "spring.mail.username")
-    private String emailAddress;
-
     private final JavaMailSender javaMailSender;
 
-    private final int maximumVerificationTime = 5;
+    @Value("${spring.mail.username}")
+    private String sender;
+
+    private final Integer verificationTime = 5;
 
     @Autowired
     public EmailService(JavaMailSender javaMailSender) {
         this.javaMailSender = javaMailSender;
     }
 
-    public int getMaximumVerificationTime() {
-        return maximumVerificationTime;
+    public Integer getVerificationTime() {
+        return verificationTime;
     }
 
-    public SimpleMailMessage createEmail(String recipient, String subject, String text) {
+    @Async
+    public void sendEmail(String recipient, String subject, String text) {
         SimpleMailMessage email = new SimpleMailMessage();
 
-        email.setFrom(emailAddress);
+        email.setFrom(sender);
         email.setTo(recipient);
         email.setSubject(subject);
         email.setText(text);
 
-        return email;
-    }
-
-    public void sendEmail(String recipient, String subject, String text) {
-        SimpleMailMessage email = createEmail(recipient, subject, text);
         javaMailSender.send(email);
     }
 
-    @Async
-    public void sendVerificationEmail(String recipient, String verificationCode, long verificationTime) {
-        String subject = "Account Verification";
-        String text = "Your verification code is " + verificationCode + ".\nThis verification code will expire in " + verificationTime + " minute(s)";
+    public void sendDelayedReservationEmail(String recipient, String fullName, String phoneNumber, Reservation reservation) {
+        SimpleMailMessage email = new SimpleMailMessage();
 
-        SimpleMailMessage verificationEmail = createEmail(recipient, subject, text);
+        email.setFrom(sender);
+        email.setTo(recipient);
 
-        javaMailSender.send(verificationEmail);
+        email.setSubject("Delayed Reservation");
+
+        email.setText("The reservation made by" + fullName + " has been delayed.\n" +
+                "User phone number:" + phoneNumber + "\n" +
+                "Please see the reservation details below:\n" +
+                "Exemplary: " + reservation.getExemplary() +
+                "Start Date: " + reservation.getStartDate() +
+                "End Date: " + reservation.getEndDate());
+
+        javaMailSender.send(email);
     }
 
     public String generateVerificationCode() {
         Random random = new Random();
-        StringBuilder verificationCode = new StringBuilder();
-
-        while (verificationCode.length() < 6) {
-            verificationCode.append(random.nextInt(0, 9));
-        }
-
-        return verificationCode.toString();
+        return String.valueOf(random.nextInt(100000, 999999));
     }
 }

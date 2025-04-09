@@ -1,6 +1,6 @@
 package com.example.SpringBookstore.entity;
 
-import com.example.SpringBookstore.UserGender;
+import com.example.SpringBookstore.Gender;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
@@ -16,27 +16,33 @@ public class User {
     @Column(name = "ID")
     private Long id;
 
-    @Column(name = "FIRSTNAME")
+    @Column(name = "FIRST_NAME")
     private String firstName;
 
-    @Column(name = "LASTNAME")
+    @Column(name = "LAST_NAME")
     private String lastName;
 
-    @Column(name = "GENDER")
     @Enumerated(value = EnumType.STRING)
-    private UserGender gender;
+    @Column(name = "GENDER")
+    private Gender gender;
 
-    @Column(name = "AGE")
-    private Integer age;
+    @Column(name = "COUNTRY")
+    private String country;
 
     @Column(name = "BIRTHDATE")
     private LocalDate birthDate;
 
-    @Column(name = "EMAIL_ADDRESS")
-    private String emailAddress;
+    @Column(name = "PHONENUMBER")
+    private String phoneNumber;
+
+    @Column(name = "EMAIL")
+    private String email;
 
     @Column(name = "PASSWORD")
     private String password;
+
+    @Column(name = "VERIFIED_ACCOUNT")
+    private Boolean verifiedAccount = false;
 
     @Column(name = "VERIFICATION_CODE")
     private String verificationCode;
@@ -44,17 +50,14 @@ public class User {
     @Column(name = "VERIFICATION_CODE_GENERATION_TIME")
     private LocalDateTime verificationCodeGenerationTime;
 
-    @Column(name = "VERIFIED_ACCOUNT")
-    private Boolean verifiedAccount = false;
-
-    @OneToMany(cascade = CascadeType.REMOVE, fetch = FetchType.LAZY, mappedBy = "user", orphanRemoval = true)
+    @OneToMany(mappedBy = "user")
     private List<Reservation> reservations = new ArrayList<>();
 
-    public Long getId() {
+    public Long getID() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setID(Long id) {
         this.id = id;
     }
 
@@ -74,20 +77,20 @@ public class User {
         this.lastName = lastName;
     }
 
-    public UserGender getGender() {
+    public Gender getGender() {
         return gender;
     }
 
-    public void setGender(UserGender userGender) {
-        this.gender = userGender;
+    public void setGender(Gender gender) {
+        this.gender = gender;
     }
 
-    public Integer getAge() {
-        return age;
+    public String getCountry() {
+        return country;
     }
 
-    public void setAge(Integer age) {
-        this.age = age;
+    public void setCountry(String country) {
+        this.country = country;
     }
 
     public LocalDate getBirthDate() {
@@ -98,12 +101,20 @@ public class User {
         this.birthDate = birthDate;
     }
 
-    public String getEmailAddress() {
-        return emailAddress;
+    public String getPhoneNumber() {
+        return phoneNumber;
     }
 
-    public void setEmailAddress(String emailAddress) {
-        this.emailAddress = emailAddress;
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public String getPassword() {
@@ -112,6 +123,14 @@ public class User {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public Boolean getVerifiedAccount() {
+        return verifiedAccount;
+    }
+
+    public void setVerifiedAccount(Boolean verifiedAccount) {
+        this.verifiedAccount = verifiedAccount;
     }
 
     public String getVerificationCode() {
@@ -130,14 +149,6 @@ public class User {
         this.verificationCodeGenerationTime = verificationCodeGenerationTime;
     }
 
-    public Boolean getVerifiedAccount() {
-        return verifiedAccount;
-    }
-
-    public void setVerifiedAccount(Boolean verifiedAccount) {
-        this.verifiedAccount = verifiedAccount;
-    }
-
     public List<Reservation> getReservations() {
         return reservations;
     }
@@ -147,12 +158,16 @@ public class User {
     }
 
     public void addReservation(Reservation reservation) {
-        reservations.add(reservation);
-        reservation.setUser(this);
+        if (!reservations.contains(reservation)) {
+            reservations.add(reservation);
+            reservation.setUser(this);
+        }
     }
 
     public void removeReservation(Reservation reservation) {
-        reservations.remove(reservation);
-        reservation.setUser(null);
+        if (reservations.contains(reservation)) {
+            reservations.remove(reservation);
+            reservation.setUser(null);
+        }
     }
 }

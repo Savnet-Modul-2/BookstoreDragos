@@ -12,17 +12,17 @@ public class Librarian {
     @Column(name = "ID")
     private Long id;
 
-    @Column(name = "FIRSTNAME")
-    private String firstName;
+    @Column(name = "NAME")
+    private String name;
 
-    @Column(name = "LASTNAME")
-    private String lastName;
-
-    @Column(name = "EMAIL_ADDRESS")
-    private String emailAddress;
+    @Column(name = "EMAIL")
+    private String email;
 
     @Column(name = "PASSWORD")
     private String password;
+
+    @Column(name = "VERIFIED_ACCOUNT")
+    private Boolean verifiedAccount = false;
 
     @Column(name = "VERIFICATION_CODE")
     private String verificationCode;
@@ -30,43 +30,32 @@ public class Librarian {
     @Column(name = "VERIFICATION_CODE_GENERATION_TIME")
     private LocalDateTime verificationCodeGenerationTime;
 
-    @Column(name = "VERIFIED_ACCOUNT")
-    private Boolean verifiedAccount = false;
-
-    @OneToOne(fetch = FetchType.EAGER, orphanRemoval = true)
-    @JoinColumn(name = "LIBRARY_ID")
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumn(name = "LIBRARY_ID", referencedColumnName = "ID")
     private Library library;
 
-    public Long getId() {
+    public Long getID() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setID(Long id) {
         this.id = id;
     }
 
-    public String getFirstName() {
-        return firstName;
+    public String getName() {
+        return name;
     }
 
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public String getLastName() {
-        return lastName;
+    public String getEmail() {
+        return email;
     }
 
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
-
-    public String getEmailAddress() {
-        return emailAddress;
-    }
-
-    public void setEmailAddress(String emailAddress) {
-        this.emailAddress = emailAddress;
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public String getPassword() {
@@ -75,6 +64,14 @@ public class Librarian {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public Boolean getVerifiedAccount() {
+        return verifiedAccount;
+    }
+
+    public void setVerifiedAccount(Boolean verifiedAccount) {
+        this.verifiedAccount = verifiedAccount;
     }
 
     public String getVerificationCode() {
@@ -91,14 +88,6 @@ public class Librarian {
 
     public void setVerificationCodeGenerationTime(LocalDateTime verificationCodeGenerationTime) {
         this.verificationCodeGenerationTime = verificationCodeGenerationTime;
-    }
-
-    public Boolean getVerifiedAccount() {
-        return verifiedAccount;
-    }
-
-    public void setVerifiedAccount(Boolean verifiedAccount) {
-        this.verifiedAccount = verifiedAccount;
     }
 
     public Library getLibrary() {

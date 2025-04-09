@@ -1,6 +1,5 @@
 package com.example.SpringBookstore.entity;
 
-import com.example.SpringBookstore.exceptionHandling.exception.BadRequestException;
 import jakarta.persistence.*;
 
 import java.util.ArrayList;
@@ -20,18 +19,20 @@ public class Library {
     @Column(name = "ADDRESS")
     private String address;
 
-    @OneToOne(fetch = FetchType.LAZY, mappedBy = "library")
-    @JoinColumn(name = "LIBRARIAN_ID")
+    @Column(name = "PHONENUMBER")
+    private String phoneNumber;
+
+    @OneToOne(mappedBy = "library")
     private Librarian librarian;
 
-    @OneToMany(cascade = CascadeType.REMOVE, fetch = FetchType.LAZY, mappedBy = "library", orphanRemoval = true)
+    @OneToMany(mappedBy = "library", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Book> books = new ArrayList<>();
 
-    public Long getId() {
+    public Long getID() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setID(Long id) {
         this.id = id;
     }
 
@@ -49,6 +50,14 @@ public class Library {
 
     public void setAddress(String address) {
         this.address = address;
+    }
+
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
     }
 
     public Librarian getLibrarian() {
@@ -71,8 +80,6 @@ public class Library {
         if (!books.contains(book)) {
             books.add(book);
             book.setLibrary(this);
-        } else {
-            throw new BadRequestException("Library already contains book with ID " + book.getId() + ".");
         }
     }
 
@@ -80,8 +87,6 @@ public class Library {
         if (books.contains(book)) {
             books.remove(book);
             book.setLibrary(null);
-        } else {
-            throw new BadRequestException("Library does not contains book with ID " + book.getId() + ".");
         }
     }
 }

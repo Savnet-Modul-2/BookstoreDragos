@@ -1,17 +1,14 @@
 package com.example.SpringBookstore.service;
 
-import com.example.SpringBookstore.dto.LibrarianDTO;
 import com.example.SpringBookstore.entity.Librarian;
 import com.example.SpringBookstore.entity.Library;
 import com.example.SpringBookstore.entity.Reservation;
-import com.example.SpringBookstore.exceptionHandling.exception.BadRequestException;
+import com.example.SpringBookstore.exceptionHandler.exception.BadRequestException;
 import com.example.SpringBookstore.repository.LibrarianRepository;
 import com.example.SpringBookstore.repository.LibraryRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.DigestUtils;
@@ -19,6 +16,7 @@ import org.springframework.util.DigestUtils;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.InputMismatchException;
 import java.util.List;
 
 @Service
@@ -28,7 +26,7 @@ public class LibrarianService {
     private final EmailService emailService;
 
     @Autowired
-    public LibrarianService(LibrarianRepository librarianRepository, LibraryRepository libraryRepository, EmailService emailService) {
+    public LibrarianService(JavaMailSender javaMailSender, LibrarianRepository librarianRepository, LibraryRepository libraryRepository, EmailService emailService) {
         this.librarianRepository = librarianRepository;
         this.libraryRepository = libraryRepository;
         this.emailService = emailService;
@@ -36,125 +34,134 @@ public class LibrarianService {
 
     @Transactional
     public Librarian create(Librarian librarianToCreate) {
-        if (librarianToCreate.getId() != null) {
+        if (librarianToCreate.getID() != null) {
             throw new RuntimeException("Cannot provide an ID when creating a new librarian.");
         }
 
         librarianToCreate.setPassword(DigestUtils.md5DigestAsHex(librarianToCreate.getPassword().getBytes(StandardCharsets.UTF_8)));
 
-        Library library = librarianToCreate.getLibrary();
+        Library library = new Library();
+
+        library.setName(librarianToCreate.getLibrary().getName());
+        library.setAddress(librarianToCreate.getLibrary().getAddress());
+        library.setPhoneNumber(librarianToCreate.getLibrary().getPhoneNumber());
         library.setLibrarian(librarianToCreate);
 
+        if (librarianToCreate.getLibrary().getBooks() != null) {
+            library.setBooks(librarianToCreate.getLibrary().getBooks());
+        }
+
         libraryRepository.save(library);
+
+        librarianToCreate.setLibrary(library);
 
         return librarianRepository.save(librarianToCreate);
     }
 
-    public Librarian findById(Long librarianId) {
-        return librarianRepository.findById(librarianId)
-                .orElseThrow(() -> new EntityNotFoundException("Librarian with ID " + librarianId + " not found."));
+    public Librarian findByID(Long librarianID) {
+        return librarianRepository.findById(librarianID)
+                .orElseThrow(() -> new EntityNotFoundException("Librarian with ID " + librarianID + " not found."));
     }
 
-    public Page<Librarian> findAll(Integer pageSize) {
-        Pageable pageable = pageSize != null ? PageRequest.of(0, pageSize) : Pageable.unpaged();
-        return librarianRepository.findAll(pageable);
+    public List<Librarian> findAll() {
+        return librarianRepository.findAll();
     }
 
-    public Librarian update(Long librarianId, LibrarianDTO librarianUpdate) {
-        Librarian userToUpdate = findById(librarianId);
-
-        userToUpdate.setFirstName(librarianUpdate.getFirstName());
-        userToUpdate.setLastName(librarianUpdate.getLastName());
-        userToUpdate.setEmailAddress(librarianUpdate.getEmailAddress());
-        userToUpdate.setPassword(librarianUpdate.getPassword());
-
-        return librarianRepository.save(userToUpdate);
-    }
-
-    public void delete(Long librarianId) {
-        if (!librarianRepository.existsById(librarianId)) {
-            throw new EntityNotFoundException("Cannot delete librarian. Librarian with ID " + librarianId + " not found.");
+    public void delete(Long librarianID) {
+        if (!librarianRepository.existsById(librarianID)) {
+            throw new EntityNotFoundException("Librarian with ID " + librarianID + " not found.");
         }
 
-        librarianRepository.deleteById(librarianId);
+        librarianRepository.deleteById(librarianID);
     }
 
-    public void sendEmail(Long librarianId) {
-        Librarian librarian = findById(librarianId);
-        emailService.sendEmail(librarian.getEmailAddress(), "Bookstore Email", "This is an email for " + librarian.getFirstName() + " " + librarian.getLastName() + ".");
+    public Librarian checkEmail(Long librarianID) {
+        Librarian librarian = librarianRepository.findById(librarianID)
+                .orElseThrow(() -> new EntityNotFoundException("Librarian with ID " + librarianID + " not found."));
+
+        if (librarian.getEmail() == null || librarian.getEmail().isEmpty()) {
+            throw new IllegalArgumentException("Librarian with ID " + librarianID + " does not have an email address.");
+        }
+
+        return librarian;
     }
 
-    public void sendVerificationEmail(Librarian librarian) {
+    public void sendEmail(String recipient, String sender, String text) {
+        emailService.sendEmail(recipient, sender, text);
+    }
+
+    public void sendVerificationCode(Librarian librarian) {
         if (!librarian.getVerifiedAccount()) {
-            String verificationCode = emailService.generateVerificationCode();
-
-            librarian.setVerificationCode(verificationCode);
+            librarian.setVerificationCode(emailService.generateVerificationCode());
             librarian.setVerificationCodeGenerationTime(LocalDateTime.now());
 
             librarianRepository.save(librarian);
 
-            emailService.sendVerificationEmail(librarian.getEmailAddress(), verificationCode, emailService.getMaximumVerificationTime());
+            emailService.sendEmail(librarian.getEmail(), "Librarian Verification Email", "Your verification code is: " + librarian.getVerificationCode() + ".\nThis verification code will expire in 5 minutes.");
         }
     }
 
-    public void resendVerificationEmail(Long librarianId) {
-        Librarian librarian = findById(librarianId);
-
-        long remainingTime = emailService.getMaximumVerificationTime() - Duration.between(librarian.getVerificationCodeGenerationTime(), LocalDateTime.now()).toMinutes();
-
-        if (remainingTime > 1) {
-            emailService.sendVerificationEmail(librarian.getEmailAddress(), librarian.getVerificationCode(), remainingTime);
-        } else {
-            sendVerificationEmail(librarian);
+    public void resendVerificationCode(Librarian librarian) {
+        if (librarian.getVerificationCodeGenerationTime() == null) {
+            throw new BadRequestException("No verification code previously generated for librarian.");
         }
+
+        Duration elapsedTime = Duration.between(librarian.getVerificationCodeGenerationTime(), LocalDateTime.now());
+
+        if (elapsedTime.toMinutes() < emailService.getVerificationTime() - 1) {
+            emailService.sendEmail(librarian.getEmail(), "Librarian Verification Email", "Your verification code is: " + librarian.getVerificationCode() + ".\nThis verification code will expire in " + (emailService.getVerificationTime() - elapsedTime.toMinutes()) + " minute(s).");
+            return;
+        }
+
+        sendVerificationCode(librarian);
     }
 
-    public Librarian verifyAccount(Long librarianId, String verificationCode) {
-        Librarian librarian = findById(librarianId);
+    public Librarian checkVerificationCode(Long librarianID, String code) {
+        Librarian librarian = findByID(librarianID);
 
-        if (Duration.between(librarian.getVerificationCodeGenerationTime(), LocalDateTime.now()).toMinutes() > 5) {
-            throw new BadRequestException("Verification code expired. Request a new verification code.");
-        } else if (!librarian.getVerificationCode().equals(verificationCode)) {
-            throw new BadRequestException("User account verification unsuccessful. Invalid verification code.");
-        } else {
-            librarian.setVerificationCodeGenerationTime(null);
+        Duration elapsedTime = Duration.between(librarian.getVerificationCodeGenerationTime(), LocalDateTime.now());
+
+        if (elapsedTime.toMinutes() > emailService.getVerificationTime()) {
             librarian.setVerificationCode(null);
 
-            librarian.setVerifiedAccount(true);
-
             librarianRepository.save(librarian);
+
+            throw new BadRequestException("Verification code expired. Request a new verification code.");
+        } else if (!librarian.getVerificationCode().equals(code)) {
+            throw new BadRequestException("Librarian account verification unsuccessful. Invalid code provided.");
         }
+
+        librarian.setVerifiedAccount(true);
+        librarian.setVerificationCode(null);
+        librarian.setVerificationCodeGenerationTime(null);
+
+        librarianRepository.save(librarian);
 
         return librarian;
     }
 
     public Librarian login(String emailAddress, String password) {
-        Librarian librarian = librarianRepository.findByEmailAddress(emailAddress)
+        Librarian librarian = librarianRepository.findByEmail(emailAddress)
                 .orElseThrow(() -> new EntityNotFoundException("Librarian with email address " + emailAddress + " not found."));
 
-        String hashedPassword = DigestUtils.md5DigestAsHex(password.getBytes(StandardCharsets.UTF_8));
+        String encryptedPassword = DigestUtils.md5DigestAsHex(password.getBytes(StandardCharsets.UTF_8));
 
-        if (!librarian.getEmailAddress().equals(emailAddress) || !hashedPassword.equals(librarian.getPassword())) {
-            throw new BadRequestException("Login unsuccessful. Invalid username or password.");
+        if (!librarian.getEmail().equals(emailAddress) || !librarian.getPassword().equals(encryptedPassword)) {
+            throw new InputMismatchException("Login unsuccessful. Invalid email address or password.");
         }
+
+        librarianRepository.save(librarian);
 
         return librarian;
     }
 
-    public void sendDelayedReservationsEmail(List<Reservation> delayedReservations) {
-        delayedReservations.forEach(reservation -> {
-            String librarianEmailAddress = reservation.getCopy().getBook().getLibrary().getLibrarian().getEmailAddress();
-            String userEmailAddress = reservation.getUser().getEmailAddress();
-            String userFullName = reservation.getUser().getFirstName() + " " + reservation.getUser().getLastName();
+    public void delayedReservationsNotification(List<Reservation> delayedReservations) {
+        for (Reservation reservation : delayedReservations) {
+            String librarianEmail = reservation.getExemplary().getBook().getLibrary().getLibrarian().getEmail();
+            String customerFullName = reservation.getUser().getFirstName() + " " + reservation.getUser().getLastName();
+            String customerPhoneNumber = reservation.getUser().getPhoneNumber();
 
-            String text = "Reservation with ID " + reservation.getId() + " has been delayed." +
-                    "\nPlease see the user details below:" +
-                    "\nUser full name: " +
-                    userFullName +
-                    "\nUser email address: " +
-                    userEmailAddress;
-
-            emailService.sendEmail(librarianEmailAddress, "Delayed Reservation", text);
-        });
+            emailService.sendDelayedReservationEmail(librarianEmail, customerFullName, customerPhoneNumber, reservation);
+        }
     }
 }

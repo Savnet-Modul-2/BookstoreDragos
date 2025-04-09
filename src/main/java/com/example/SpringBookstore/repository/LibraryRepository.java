@@ -16,24 +16,24 @@ import java.util.List;
 public interface LibraryRepository extends JpaRepository<Library, Long> {
     @Query(value = """
             SELECT r.* FROM reservations r
-            JOIN copies c ON r.COPY_ID = c.ID
-            JOIN books b ON c.BOOK_ID = b.ID
+            JOIN exemplars e ON r.EXEMPLARY_ID = e.ID
+            JOIN books b ON e.BOOK_ID = b.ID
             JOIN libraries l ON b.LIBRARY_ID = l.ID
-            WHERE l.ID = :libraryId
+            WHERE l.ID = :libraryID
             AND r.START_DATE >= :startDate
             AND r.END_DATE <= :endDate
             AND r.STATUS IN :reservationStatusFilters
             """,
             countQuery = """
                     SELECT COUNT(*) FROM reservations r
-                    JOIN copies c ON r.COPY_ID = c.ID
-                    JOIN books b ON c.BOOK_ID = b.ID
+                    JOIN exemplars e ON r.EXEMPLARY_ID = e.ID
+                    JOIN books b ON e.BOOK_ID = b.ID
                     JOIN libraries l ON b.LIBRARY_ID = l.ID
-                    WHERE l.ID = :libraryId
+                    WHERE l.ID = :libraryID
                     AND r.START_DATE >= :startDate
                     AND r.END_DATE <= :endDate
                     AND r.STATUS IN :reservationStatusFilters
                     """,
             nativeQuery = true)
-    Page<Reservation> findReservationByLibraryIdForPeriod(@Param(value = "libraryId") Long libraryId, LocalDate startDate, LocalDate endDate, List<String> reservationStatusFilters, Pageable pageable);
+    Page<Reservation> findReservationByLibraryIdForPeriod(@Param(value = "libraryID") Long libraryID, LocalDate startDate, LocalDate endDate, List<String> reservationStatusFilters, Pageable pageable);
 }

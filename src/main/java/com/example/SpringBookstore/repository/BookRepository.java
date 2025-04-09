@@ -11,13 +11,13 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface BookRepository extends JpaRepository<Book, Long> {
     @Query(value = """
-            SELECT b.* FROM books b
+            SELECT b FROM book b
             WHERE
             (:title IS NOT NULL OR :author IS NOT NULL)
             AND
-            (:title IS NULL OR LOWER(b.TITLE) LIKE LOWER(CONCAT('%', :title, '%')))
+            (:title IS NULL OR LOWER(b.title) LIKE LOWER(CONCAT('%', :title, '%')))
             AND
-            (:author IS NULL OR LOWER(b.AUTHOR) LIKE LOWER(CONCAT('%', :author, '%')))
-            """, nativeQuery = true)
-    Page<Book> findByTitleAndAuthor(@Param(value = "title") String title, @Param(value = "author") String author, Pageable pageable);
+            (:author IS NULL OR LOWER(b.author) LIKE LOWER(CONCAT('%', :author, '%')))
+            """)
+    Page<Book> searchBooks(@Param("title") String title, @Param("author") String author, Pageable pageable);
 }

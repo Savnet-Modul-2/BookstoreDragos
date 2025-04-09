@@ -1,9 +1,9 @@
 package com.example.SpringBookstore.entity;
 
 import com.example.SpringBookstore.BookCategory;
-import com.example.SpringBookstore.exceptionHandling.exception.BadRequestException;
 import jakarta.persistence.*;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,15 +15,18 @@ public class Book {
     @Column(name = "ID")
     private Long id;
 
+    @Column(name = "ISBN")
+    private Long isbn;
+
     @Column(name = "TITLE")
     private String title;
 
     @Column(name = "AUTHOR")
     private String author;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "CATEGORY")
-    @Enumerated(value = EnumType.STRING)
-    private BookCategory category;
+    private BookCategory bookCategory;
 
     @Column(name = "LANGUAGE")
     private String language;
@@ -31,19 +34,30 @@ public class Book {
     @Column(name = "NUMBER_OF_PAGES")
     private Integer numberOfPages;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @Column(name = "RELEASE_DATE")
+    private LocalDate releaseDate;
+
+    @OneToMany(mappedBy = "book", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Exemplary> exemplars = new ArrayList<>();
+
+    @ManyToOne
     @JoinColumn(name = "LIBRARY_ID")
     private Library library;
 
-    @OneToMany(cascade = CascadeType.REMOVE, fetch = FetchType.LAZY, mappedBy = "book", orphanRemoval = true)
-    private List<Copy> copies = new ArrayList<>();
-
-    public Long getId() {
+    public Long getID() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setID(Long id) {
         this.id = id;
+    }
+
+    public Long getISBN() {
+        return isbn;
+    }
+
+    public void setISBN(Long isbn) {
+        this.isbn = isbn;
     }
 
     public String getTitle() {
@@ -63,11 +77,11 @@ public class Book {
     }
 
     public BookCategory getCategory() {
-        return category;
+        return bookCategory;
     }
 
-    public void setCategory(BookCategory category) {
-        this.category = category;
+    public void setCategory(BookCategory bookCategory) {
+        this.bookCategory = bookCategory;
     }
 
     public String getLanguage() {
@@ -86,6 +100,22 @@ public class Book {
         this.numberOfPages = numberOfPages;
     }
 
+    public LocalDate getReleaseDate() {
+        return releaseDate;
+    }
+
+    public void setReleaseDate(LocalDate releaseDate) {
+        this.releaseDate = releaseDate;
+    }
+
+    public List<Exemplary> getExemplars() {
+        return exemplars;
+    }
+
+    public void setExemplars(List<Exemplary> exemplars) {
+        this.exemplars = exemplars;
+    }
+
     public Library getLibrary() {
         return library;
     }
@@ -94,29 +124,17 @@ public class Book {
         this.library = library;
     }
 
-    public List<Copy> getCopies() {
-        return copies;
-    }
-
-    public void setCopies(List<Copy> copies) {
-        this.copies = copies;
-    }
-
-    public void addCopy(Copy copy) {
-        if (!copies.contains(copy)) {
-            copies.add(copy);
-            copy.setBook(this);
-        } else {
-            throw new BadRequestException("Book already contains copy with ID " + copy.getId() + ".");
+    public void addExemplary(Exemplary exemplary) {
+        if (!exemplars.contains(exemplary)) {
+            exemplars.add(exemplary);
+            exemplary.setBook(this);
         }
     }
 
-    public void removeCopy(Copy copy) {
-        if (copies.contains(copy)) {
-            copies.remove(copy);
-            copy.setBook(null);
-        } else {
-            throw new BadRequestException("Book does not contain copy with ID " + copy.getId() + ".");
+    public void removeExemplary(Exemplary exemplary) {
+        if (exemplars.contains(exemplary)) {
+            exemplars.remove(exemplary);
+            exemplary.setBook(null);
         }
     }
 }

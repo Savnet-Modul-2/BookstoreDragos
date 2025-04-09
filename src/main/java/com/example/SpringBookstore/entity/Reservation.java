@@ -19,15 +19,15 @@ public class Reservation {
     @Column(name = "END_DATE")
     private LocalDate endDate;
 
-    @Enumerated(value = EnumType.STRING)
+    @Enumerated(EnumType.STRING)
     @Column(name = "STATUS")
-    private ReservationStatus status;
+    private ReservationStatus reservationStatus;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "COPY_ID")
-    private Copy copy;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "EXEMPLARY_ID")
+    private Exemplary exemplary;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "USER_ID")
     private User user;
 
@@ -35,11 +35,11 @@ public class Reservation {
     @Column(name = "VERSION")
     private Integer version;
 
-    public Long getId() {
+    public Long getID() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setID(Long id) {
         this.id = id;
     }
 
@@ -60,19 +60,19 @@ public class Reservation {
     }
 
     public ReservationStatus getStatus() {
-        return status;
+        return reservationStatus;
     }
 
-    public void setStatus(ReservationStatus status) {
-        this.status = status;
+    public void setStatus(ReservationStatus reservationStatus) {
+        this.reservationStatus = reservationStatus;
     }
 
-    public Copy getCopy() {
-        return copy;
+    public Exemplary getExemplary() {
+        return exemplary;
     }
 
-    public void setCopy(Copy copy) {
-        this.copy = copy;
+    public void setExemplary(Exemplary exemplary) {
+        this.exemplary = exemplary;
     }
 
     public User getUser() {
