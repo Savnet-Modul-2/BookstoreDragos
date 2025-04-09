@@ -1,9 +1,9 @@
 package com.example.SpringBookstore.entityDTO;
 
 import com.example.SpringBookstore.ReservationStatus;
-import com.example.SpringBookstore.entityDTO.validation.AdvancedInformation;
-import com.example.SpringBookstore.entityDTO.validation.ValidReservationDateInTheFuture;
-import com.example.SpringBookstore.entityDTO.validation.ValidReservationDateOrder;
+import com.example.SpringBookstore.entityDTO.validation.information.AdvancedInformation;
+import com.example.SpringBookstore.entityDTO.validation.customAnnotation.ValidReservationDateInTheFuture;
+import com.example.SpringBookstore.entityDTO.validation.customAnnotation.ValidReservationDateOrder;
 
 import java.time.LocalDate;
 

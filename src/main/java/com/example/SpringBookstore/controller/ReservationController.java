@@ -4,7 +4,7 @@ import com.example.SpringBookstore.entity.Book;
 import com.example.SpringBookstore.entity.Reservation;
 import com.example.SpringBookstore.entityDTO.ReservationDTO;
 import com.example.SpringBookstore.entityDTO.ReservationFiltersDTO;
-import com.example.SpringBookstore.entityDTO.validation.ValidationOrder;
+import com.example.SpringBookstore.entityDTO.validation.information.ValidationOrder;
 import com.example.SpringBookstore.mapper.BookMapper;
 import com.example.SpringBookstore.mapper.ReservationMapper;
 import com.example.SpringBookstore.service.ReservationService;

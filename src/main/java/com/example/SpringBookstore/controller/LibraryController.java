@@ -2,7 +2,7 @@ package com.example.SpringBookstore.controller;
 
 import com.example.SpringBookstore.entity.Library;
 import com.example.SpringBookstore.entityDTO.LibraryDTO;
-import com.example.SpringBookstore.entityDTO.validation.ValidationOrder;
+import com.example.SpringBookstore.entityDTO.validation.information.ValidationOrder;
 import com.example.SpringBookstore.mapper.LibraryMapper;
 import com.example.SpringBookstore.service.LibraryService;
 import org.springframework.beans.factory.annotation.Autowired;

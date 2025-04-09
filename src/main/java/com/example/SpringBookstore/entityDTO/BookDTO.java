@@ -1,10 +1,10 @@
 package com.example.SpringBookstore.entityDTO;
 
 import com.example.SpringBookstore.BookCategory;
-import com.example.SpringBookstore.entityDTO.validation.AdvancedInformation;
-import com.example.SpringBookstore.entityDTO.validation.ValidBookInformation;
-import com.example.SpringBookstore.entityDTO.validation.ValidBookNumberOfPages;
-import com.example.SpringBookstore.entityDTO.validation.ValidBookReleaseDateNotInTheFuture;
+import com.example.SpringBookstore.entityDTO.validation.information.AdvancedInformation;
+import com.example.SpringBookstore.entityDTO.validation.customAnnotation.ValidBookInformation;
+import com.example.SpringBookstore.entityDTO.validation.customAnnotation.ValidBookNumberOfPages;
+import com.example.SpringBookstore.entityDTO.validation.customAnnotation.ValidBookReleaseDateNotInTheFuture;
 
 import java.time.LocalDate;
 

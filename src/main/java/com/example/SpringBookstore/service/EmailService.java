@@ -49,11 +49,13 @@ public class EmailService {
         email.setSubject("Delayed Reservation");
 
         email.setText("The reservation made by" + fullName + " has been delayed.\n" +
-                "User phone number:" + phoneNumber +
+                "User phone number:" + phoneNumber + "\n" +
                 "Please see the reservation details below:\n" +
                 "Exemplary: " + reservation.getExemplary() +
                 "Start Date: " + reservation.getStartDate() +
                 "End Date: " + reservation.getEndDate());
+
+        javaMailSender.send(email);
     }
 
     public String generateVerificationCode() {

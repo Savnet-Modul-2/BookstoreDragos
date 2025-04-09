@@ -1,9 +1,9 @@
 package com.example.SpringBookstore.entityDTO;
 
 import com.example.SpringBookstore.Gender;
-import com.example.SpringBookstore.entityDTO.validation.AdvancedInformation;
-import com.example.SpringBookstore.entityDTO.validation.ValidUserBirthDate;
-import com.example.SpringBookstore.entityDTO.validation.ValidUserFullName;
+import com.example.SpringBookstore.entityDTO.validation.information.AdvancedInformation;
+import com.example.SpringBookstore.entityDTO.validation.customAnnotation.ValidUserBirthDate;
+import com.example.SpringBookstore.entityDTO.validation.customAnnotation.ValidUserFullName;
 
 import java.time.LocalDate;
 

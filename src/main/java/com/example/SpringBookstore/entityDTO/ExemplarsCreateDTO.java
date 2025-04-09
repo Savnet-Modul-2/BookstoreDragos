@@ -1,9 +1,9 @@
 package com.example.SpringBookstore.entityDTO;
 
-import com.example.SpringBookstore.entityDTO.validation.AdvancedInformation;
-import com.example.SpringBookstore.entityDTO.validation.ValidExemplarsCreateBookingTime;
-import com.example.SpringBookstore.entityDTO.validation.ValidExemplarsCreateNumber;
-import com.example.SpringBookstore.entityDTO.validation.ValidExemplarsCreatePublisher;
+import com.example.SpringBookstore.entityDTO.validation.information.AdvancedInformation;
+import com.example.SpringBookstore.entityDTO.validation.customAnnotation.ValidExemplarsCreateBookingTime;
+import com.example.SpringBookstore.entityDTO.validation.customAnnotation.ValidExemplarsCreateNumber;
+import com.example.SpringBookstore.entityDTO.validation.customAnnotation.ValidExemplarsCreatePublisher;
 
 @ValidExemplarsCreatePublisher(groups = AdvancedInformation.class)
 @ValidExemplarsCreateBookingTime(groups = AdvancedInformation.class)

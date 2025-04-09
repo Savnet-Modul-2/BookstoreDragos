@@ -32,18 +32,14 @@ public class CronJob {
                 .findAllReservationsToBeCanceled(LocalDate.now());
 
         if (!reservationsToBeDelayed.isEmpty()) {
-            reservationsToBeDelayed.forEach(reservation ->
-                    reservation.setStatus(ReservationStatus.DELAYED));
-
+            reservationsToBeDelayed.forEach(reservation -> reservation.setStatus(ReservationStatus.DELAYED));
             reservationRepository.saveAll(reservationsToBeDelayed);
 
             librarianService.delayedReservationsNotification(reservationsToBeDelayed);
         }
 
         if (!reservationsToBeCanceled.isEmpty()) {
-            reservationsToBeCanceled.forEach(reservation ->
-                    reservation.setStatus(ReservationStatus.CANCELLED));
-
+            reservationsToBeCanceled.forEach(reservation -> reservation.setStatus(ReservationStatus.CANCELLED));
             reservationRepository.saveAll(reservationsToBeCanceled);
         }
     }
